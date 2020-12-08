@@ -17,10 +17,10 @@ int main()
 	testLink();
 
 	printf("\r\n**************************Ë«Á´±í²âÊÔ**************************\r\n");
-//	testDoubleLink();
+	testDoubleLink();
 
 	printf("\r\n************************Ñ­»·Ë«Á´±í²âÊÔ************************\r\n");
-//	testCycDoubleLink();
+	testCycDoubleLink();
 
 	printf("\r\n**************************×Ö·û´®²âÊÔ**************************\r\n");
 	testString();

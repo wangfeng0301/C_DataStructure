@@ -190,6 +190,11 @@ void ReverseLinkList(LinkNode *list)
 	LinkNode *preNode; //相对于当前节点的上一个节点
 	LinkNode *headNode;//头结点
 
+	if(list->next == NULL)
+	{
+		printf("链表为空\r\n");
+		return;
+	}
 	headNode = list;
 	preNode = list->next;
 	currNode = preNode->next;
