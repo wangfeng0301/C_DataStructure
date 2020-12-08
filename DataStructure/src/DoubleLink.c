@@ -193,7 +193,7 @@ void Double_DeleteNote(DoubleLinkNode *list,unsigned int n)
 	}
 }
 /************************************************************************
- *删除整个链表
+ *功能：删除整个链表，保留链表头
  *输入：list:链表地址
  *输出：无
  *返回：无
@@ -372,7 +372,7 @@ void CycDouble_InsertNode(DoubleLinkNode *list,unsigned int n)
 	}
 }
 /************************************************************************
- *功能：在表尾增加节点
+ *功能：在表尾增加节点,链表为空不能直接返回
  *输入：list:链表地址
  *输出：无
  *返回：无
@@ -383,11 +383,7 @@ void CycDouble_AddNode(DoubleLinkNode *list)
 
 	temp = list;//临时节点指向首节点	
 	printf("在表尾插入新节点\r\n");
-	if(list->next == list)
-	{
-		printf("链表为空！\r\n");
-		return;
-	}
+
 	pNewNode = (DoubleLinkNode*)malloc(sizeof(DoubleLinkNode));//为新节点分配内存
 	if(pNewNode == NULL)
 	{
@@ -438,7 +434,7 @@ void CycDouble_DeleteNote(DoubleLinkNode *list,unsigned int n)
 	}
 }
 /************************************************************************
- *删除整个链表
+ *功能：删除整个链表
  *输入：list:链表地址
  *输出：无
  *返回：无
@@ -448,7 +444,6 @@ void CycDouble_DeleteLinkList(DoubleLinkNode *list)
 	DoubleLinkNode *temp,*p;//临时节点
 
 	temp = list->next;//临时节点指向首节点后继
-	//list->next = NULL;
 	if(temp == list)
 	{
 		printf("链表为空！\r\n");
@@ -465,87 +460,15 @@ void CycDouble_DeleteLinkList(DoubleLinkNode *list)
 	 *判断为 temp==NULL ,所以后续释放p内存并不是释放首节点的内存，首节点还是保留的，在内存中有一席之地；
 	 *但是这里的判断为 temp==list ，即释放p就是释放首节点的内存，首节点就不存在了，故后续如果用遍历函数就会出现内存错误。
 	 */
-	//if(temp==list)
-	//{
+	if(temp==list)
+	{
 	//	free(p);//
 	//	p = NULL;
-	//	printf("删除链表成功！\r\n");
-	//}
+		printf("删除链表成功！\r\n");
+	}
 	list->next = list;//首节点后继指向自身
 	list->pre = list;//首节点前驱指向自身
 }
-
-/*Josephus问题：n人围一桌，从第s人开始报数，数到第m人出列
-*从出列下一个人重新开始报数，数到第m人出列，以此类推
-*/
-void josephus(unsigned int n,unsigned int s,unsigned int m)
-{
-	unsigned int i=0,j=0;
-	DoubleLinkNode *person = CycDouble_CreatLinkList(0);//定义一个循环链表，0个有效节点
-	DoubleLinkNode *temp=person;//临时节点变量,赋值为首节点
-	DoubleLinkNode *p;//存放删除前节点地址
-	if(n<1)
-	{		
-		printf("总人数必须大于1！");
-		return;
-	}
-	if(s>n || s<1)
-	{
-		printf("开始人数必须小于等于总人数且大于0！");
-		return;
-	}
-	if(m<1)
-	{
-		printf("所报数m必须大于0！");
-		return;
-	}
-
-	for(i=0;i<n;i++)//表尾添加n个节点，表示n个人
-		CycDouble_AddNode(person,i+1);
-	CycDouble_TraverseList(person);//遍历人数及每人编号
-
-	while(s--)//定位到第s人
-	{
-		temp = temp->next;
-	}
-	printf("\r\n开始报数人编号：%d\r\n",temp->Element);
-
-	for(j=0;j<n;j++)//输出被淘汰人员编号
-	{
-		for(i=0;i<m-1;i++)//开始报数，即从开始位置加1，直到加到m
-		{
-			temp = temp->next;
-			if(temp == person)//指到首节点，自动向下
-				temp = temp->next;
-		}
-		p = temp->next;//下一个节点保存到p中
-		if(p == person)//指到首节点，自动向下
-			p = p->next;
-		if(p == person)
-		{
-			printf("计算完毕\r\n");
-			return;
-		}
-		printf("淘汰第%d人编号：%d\r\n",j+1,temp->Element);//输出当前节点编号
-
-		/*删除当前节点*/
-		temp->pre->next = temp->next;//被删除节点的前驱的后继指向被删除节点的后继
-		temp->next->pre = temp->pre;//被删除节点的后继的前驱指向被删除节点的前驱
-		free(temp);//释放被删除节点内存
-
-		temp = p;//临时节点指向下一个节点
-	}
-	printf("\r\n遍历人数及编号\r\n");
-	CycDouble_TraverseList(person);//遍历人数及每人编号
-
-	printf("\r\n删除链表\r\n");
-	CycDouble_DeleteLinkList(person);
-
-	printf("\r\n删除链表后遍历人数及编号\r\n");
-	CycDouble_TraverseList(person);//遍历人数及每人编号
-
-}
-
 
 void testDoubleLink(void)
 {
@@ -565,7 +488,6 @@ void testDoubleLink(void)
 void testCycDoubleLink(void)
 {
 	DoubleLinkNode *people = CycDouble_CreatLinkList(10);
-	unsigned n=500,s=60,m=51;
 
 	CycDouble_TraverseList(people);		//遍历链表
 	CycDouble_InsertNode(people,4);		//在第n个节点前插入新节点
@@ -581,7 +503,4 @@ void testCycDoubleLink(void)
 	CycDouble_TraverseList(people);		//遍历链表
 	CycDouble_DeleteLinkList(people);	//删除链表
 	CycDouble_TraverseList(people);		//遍历链表
-
-	//printf("josephus问题：\r\n");
-	//josephus(n,s,m);
 }
