@@ -10,35 +10,6 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="inc\application.h" />
-    <ClInclude Include="inc\BinaryTree.h" />
-    <ClInclude Include="inc\CycLink.h" />
-    <ClInclude Include="inc\DoubleLink.h" />
-    <ClInclude Include="inc\heap.h" />
-    <ClInclude Include="inc\HuffmanTree.h" />
-    <ClInclude Include="inc\link.h" />
-    <ClInclude Include="inc\mystring.h" />
-    <ClInclude Include="inc\queue.h" />
-    <ClInclude Include="inc\sort.h" />
-    <ClInclude Include="inc\stack.h" />
-    <ClInclude Include="inc\tree.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="src\application.c" />
-    <ClCompile Include="src\BinaryTree.c" />
-    <ClCompile Include="src\CycLink.c" />
-    <ClCompile Include="src\DoubleLink.c" />
-    <ClCompile Include="src\heap.c" />
-    <ClCompile Include="src\HuffmanTree.c" />
-    <ClCompile Include="src\Link.c" />
-    <ClCompile Include="src\main.c" />
-    <ClCompile Include="src\mystring.c" />
-    <ClCompile Include="src\queue.c" />
-    <ClCompile Include="src\sort.c" />
-    <ClCompile Include="src\stack.c" />
-    <ClCompile Include="src\tree.c" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{223B8FD4-9481-439B-91F5-A65C3EB33DDF}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
@@ -81,7 +52,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <TreatWarningAsError>false</TreatWarningAsError>
-      <AdditionalIncludeDirectories>E:\GitHub\C_DataStructure\DataStructure\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\DataStructure\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -105,6 +76,39 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="..\README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="inc\application.h" />
+    <ClInclude Include="inc\heap.h" />
+    <ClInclude Include="inc\linkedlist_double.h" />
+    <ClInclude Include="inc\linkedlist_single.h" />
+    <ClInclude Include="inc\queue.h" />
+    <ClInclude Include="inc\search.h" />
+    <ClInclude Include="inc\sort.h" />
+    <ClInclude Include="inc\stack.h" />
+    <ClInclude Include="inc\string_my.h" />
+    <ClInclude Include="inc\tree.h" />
+    <ClInclude Include="inc\tree_binary.h" />
+    <ClInclude Include="inc\tree_huffman.h" />
+    <ClInclude Include="inc\type.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\application.c" />
+    <ClCompile Include="src\heap.c" />
+    <ClCompile Include="src\linkedlist_double.c" />
+    <ClCompile Include="src\linkedlist_single.c" />
+    <ClCompile Include="src\main.c" />
+    <ClCompile Include="src\queue.c" />
+    <ClCompile Include="src\search.c" />
+    <ClCompile Include="src\sort.c" />
+    <ClCompile Include="src\stack.c" />
+    <ClCompile Include="src\string_my.c" />
+    <ClCompile Include="src\tree.c" />
+    <ClCompile Include="src\tree_binary.c" />
+    <ClCompile Include="src\tree_huffman.c" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

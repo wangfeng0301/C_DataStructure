@@ -13,6 +13,6 @@ void enQueue(Queue *q,char c);
 char deQueue(Queue *q);
 void ClearQueue(Queue *q);
 
-void testQueue();
+void testQueue(void);
 
 #endif

@@ -2,8 +2,8 @@
 #include<malloc.h>
 #include<stdlib.h>
 #include "application.h"
-#include "DoubleLink.h"
-#include "link.h"
+#include "linkedlist_single.h"
+#include "linkedlist_double.h"
 
 /************************************************************************
  *问题描述：Josephus问题（约瑟夫环）：n人围一桌，从第s人开始报数，数到第m人出列

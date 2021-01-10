@@ -1,3 +1,9 @@
+/*********************************************************************
+*常见排序算法
+*wangfeng
+*2019.11.28
+*参考资料：《数据结构与算法》张铭，王腾蛟，赵海燕等
+**********************************************************************/
 #include <stdio.h>
 #include <malloc.h>
 #include "sort.h"
@@ -609,7 +615,7 @@ void AdjustRecord(Record *Array,int* IndexArray,int n)
 
 
 
-void testSort()
+void testSort(void)
 {
 	int i;
 	Record testArray[] = {{97},{53},{88},{59},{26},{41},{88},{31},{22}};

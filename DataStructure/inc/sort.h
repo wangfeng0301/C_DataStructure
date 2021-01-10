@@ -1,14 +1,6 @@
 #ifndef __SORT_H__
 #define __SORT_H__
-
-//重定义数据类型
-#ifndef FALSE
-#define FALSE			0
-#endif
-#ifndef TRUE
-#define TRUE			1
-#endif
-typedef unsigned char	bool;
+#include "type.h"
 
 /*记录(节点)结构体*/
 typedef struct
@@ -32,5 +24,5 @@ typedef struct
 	int tail;
 }StaticQueue;
 
-void testSort();
+void testSort(void);
 #endif

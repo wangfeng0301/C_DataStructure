@@ -15,31 +15,27 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\README.md">
+      <Filter>资源文件</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
     <ClInclude Include="inc\application.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\BinaryTree.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\CycLink.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\DoubleLink.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="inc\heap.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="inc\HuffmanTree.h">
+    <ClInclude Include="inc\linkedlist_double.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="inc\link.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\mystring.h">
+    <ClInclude Include="inc\linkedlist_single.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="inc\queue.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\search.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="inc\sort.h">
@@ -48,7 +44,19 @@
     <ClInclude Include="inc\stack.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="inc\string_my.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
     <ClInclude Include="inc\tree.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\tree_binary.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\tree_huffman.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\type.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -56,37 +64,37 @@
     <ClCompile Include="src\application.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\BinaryTree.c">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\CycLink.c">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\DoubleLink.c">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="src\heap.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\HuffmanTree.c">
+    <ClCompile Include="src\linkedlist_double.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\Link.c">
+    <ClCompile Include="src\linkedlist_single.c">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\main.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\mystring.c">
+    <ClCompile Include="src\queue.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\queue.c">
+    <ClCompile Include="src\search.c">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\sort.c">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\stack.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\string_my.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tree_binary.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tree_huffman.c">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\tree.c">

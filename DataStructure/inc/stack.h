@@ -1,15 +1,6 @@
 #ifndef __STACK_H__
 #define __STACK_H__
-#include "link.h"
-
-//重定义数据类型
-#ifndef FALSE
-#define FALSE			0
-#endif
-#ifndef TRUE
-#define TRUE			1
-#endif
-typedef unsigned char	bool;
+#include "linkedlist_single.h"
 
 
 typedef struct  

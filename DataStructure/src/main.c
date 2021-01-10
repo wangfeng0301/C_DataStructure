@@ -1,15 +1,15 @@
 #include <stdio.h>
 #include <string.h>
-#include "link.h"
-#include "DoubleLink.h"
-#include "application.h"
+#include "linkedlist_single.h"
+#include "linkedlist_double.h"
 #include "stack.h"
 #include "queue.h"
-#include "mystring.h"
-#include "BinaryTree.h"
-#include "heap.h"
+#include "string_my.h"
+#include "tree_binary.h"
 #include "tree.h"
+#include "heap.h"
 #include "sort.h"
+#include "application.h"
 
 int main()
 {
@@ -43,7 +43,7 @@ int main()
 	printf("\r\n****************************∂—≤‚ ‘****************************\r\n");
 	testHeap();
 
-	printf("\r\n***********************Huffman ˜≤‚ ‘**************************\r\n");
+	printf("\r\n*********************** Huffman ˜≤‚ ‘ ************************\r\n");
 	testHuffmanTree();
 
 	printf("\r\n*************************** ˜≤‚ ‘*****************************\r\n");
@@ -51,6 +51,9 @@ int main()
 
 	printf("\r\n**************************≈≈–Ú≤‚ ‘****************************\r\n");
 	testSort();
+
+	printf("\r\n******************** josephusŒ Ã‚≤‚ ‘ ************************\r\n");
+	//josephus(5,2,2);
 
 	system("pause");
 	return 0;
