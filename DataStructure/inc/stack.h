@@ -1,39 +1,46 @@
 #ifndef __STACK_H__
 #define __STACK_H__
-#include "linkedlist_single.h"
+#include "type.h"
 
-
+/* 栈数据结构体 */
+typedef struct
+{
+	//char c;
+	int element;
+}StackData_t;
+/* 栈结构体 */
 typedef struct  
 {
 	int size;//栈的大小
 	int top;//栈顶
-	char *st;//存放栈元素的数组
-}stack;
+	StackData_t *st;//存放栈元素的数组
+}Stack_t;
 
-//链式栈结构体
+/*链式栈节点结构体*/
+typedef struct LinkStackNode
+{
+	StackData_t data;
+	struct LinkStackNode* next;
+}LinkStackNode_t;
+/* 链式栈结构体，栈空间由链表组成 */
 typedef struct
 {
-	LinkNode *top;//链表结构体
+	LinkStackNode_t *top;//链表结构体
 	int size;
-}LinkStack;
+}LinkStack_t;
 
-void CreateStack(stack *s,int size);//创建栈
-void push(stack *s,char c);
-char pop(stack *s);//出栈
-void clear(stack *s);//清空栈
+void CreateStack(Stack_t *s,int size);//创建栈
+bool Push(Stack_t *s,StackData_t dat);
+bool Pop(Stack_t *s,StackData_t *dat);
+void Clear(Stack_t *s);//清空栈
+int GetTop(Stack_t *s);
 
-void CreateLinkStack(LinkStack *s);//
-void LSpush(LinkStack *s,int c);//压栈
-int LSpop(LinkStack *s);//出栈
-void LSclear(LinkStack *s);
+void CreateLinkStack(LinkStack_t *s);
+bool LSpush(LinkStack_t *s,StackData_t dat);
+bool LSpop(LinkStack_t *s, StackData_t *dat);
+void LSclear(LinkStack_t *s);
 
-long factorial_recursion(long n);//n的阶乘，递归方式
-long factorial_iteration(long n);//n的阶乘，迭代方式
-unsigned char knap_recursion(int s,int n,int* w);//背包问题，递归方式
-unsigned char nonRecKnap(int s,int n,int* w);//背包问题，非递归方式
-unsigned char nonRecknapOpt(int s,int n, int* w);//背包问题，优化非递归方式
+void testStack(void);
+void testLinkStack(void);
 
-void testStack();
-void testLinkStack();
-void testRecursion();
 #endif

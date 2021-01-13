@@ -15,32 +15,34 @@
 /************************************************************************
  *功能：创建链表
  *输入：n 链表节点个数，不包含首节点
+ *		dat:要传入的数据元素指针，若n=0,改参数可传NULL
  *输出：无
  *返回：链表首地址
 ************************************************************************/
-DoubleLinkNode *Double_CreatLinkList(unsigned int n)
+DoubleLinkNode_t *Double_CreatLinkList(unsigned int n, DoubleLinkData_t *dat)
 {
 	unsigned int i=0;
-	DoubleLinkNode *pHead,*pTail,*pNode;//定义首节点、尾节点、普通节点
+	DoubleLinkNode_t *pHead,*pTail,*pNode;//定义首节点、尾节点、普通节点
 
-	pHead = (DoubleLinkNode *)malloc(sizeof(DoubleLinkNode));//为首节点开辟空间，首节点没有数据
+	pHead = (DoubleLinkNode_t *)malloc(sizeof(DoubleLinkNode_t));//为首节点开辟空间，首节点没有数据
 	if(pHead == NULL)
 	{
 		printf("首节点空间分配失败！\r\n");
-		return;
+		exit(-1);
 	}
 	pHead->pre = NULL;//首节点前驱指向空
 	pTail = pHead;//尾节点指向首节点
 	for(i=0;i<n;i++)
 	{
-		pNode = (DoubleLinkNode*)malloc(sizeof(DoubleLinkNode));//新开辟空间给新节点
+		pNode = (DoubleLinkNode_t*)malloc(sizeof(DoubleLinkNode_t));//新开辟空间给新节点
 		if(pNode == NULL)
 		{
 			printf("新节点%d空间分配失败！\r\n",i);
-			return;
+			exit(-1);
 		}
-		printf("请输入节点%d数据：",i);
-		scanf("%d",&(pNode->Element));
+		//printf("请输入节点%d数据：",i);
+		//scanf("%d",&(pNode->Element));
+		pNode->data = dat[i];
 		pTail->next = pNode;//新建节点的前一个节点后继指向自己
 		pNode->pre = pTail;//新建节点前驱指向前一个节点
 		pTail = pNode;//新节点赋值给尾节点，尾节点就变成了当前新建的节点
@@ -56,12 +58,13 @@ DoubleLinkNode *Double_CreatLinkList(unsigned int n)
  *输出：无
  *返回：无
 ************************************************************************/
-void Double_TraverseList(DoubleLinkNode *list)
+void Double_TraverseList(DoubleLinkNode_t *list)
 {
 	unsigned int i=0;
-	DoubleLinkNode *temp;//临时节点
+	DoubleLinkNode_t *temp;//临时节点
 
 	temp = list->next;//首节点没有数据，所以临时节点指向第一个普通节点
+	printf("遍历链表：\r\n");
 	if(temp == NULL)
 	{
 		printf("链表为空！\r\n");
@@ -69,7 +72,8 @@ void Double_TraverseList(DoubleLinkNode *list)
 	}
 	while(temp != NULL)
 	{
-		printf("节点%d元素：%d\r\n",i,temp->Element);
+		//printf("节点%d元素：%d\r\n",i,temp->Element);
+		printf("节点%d元素：%d\r\n",i,temp->data.element);
 		temp = temp->next;//指向下一个节点
 		i++;
 	}
@@ -79,13 +83,14 @@ void Double_TraverseList(DoubleLinkNode *list)
  *功能：修改节点n的值
  *输入：n:第n个节点,n从0开始算。只算普通节点
  *		list:链表地址
+ *		dat:修改的值
  *输出：无
  *返回：无
 ************************************************************************/
-void Double_ChangeNodeValue(DoubleLinkNode * list,unsigned int n)
+void Double_ChangeNodeValue(DoubleLinkNode_t * list,unsigned int n, DoubleLinkData_t dat)
 {
 	unsigned int i=n;
-	DoubleLinkNode* temp;//临时节点
+	DoubleLinkNode_t* temp;//临时节点
 
 	temp = list->next;//指向第一个有数据节点
 	if(temp == NULL)
@@ -99,8 +104,10 @@ void Double_ChangeNodeValue(DoubleLinkNode * list,unsigned int n)
 	}
 	if(temp!=NULL)
 	{	
-		printf("节点%d修改为：",n);
-		scanf("%d",&(temp->Element));
+		//printf("节点%d修改为：",n);
+		//scanf("%d",&(temp->Element));
+		printf("修改节点%d\r\n",n);
+		temp->data = dat;
 	}
 	else
 	{
@@ -110,13 +117,14 @@ void Double_ChangeNodeValue(DoubleLinkNode * list,unsigned int n)
 /************************************************************************
  *功能：在第n个节点前插入节点，节点从0开始算，只算普通节点
  *输入：n:第n个节点
+ *		dat:插入的值
  *输出：无
  *返回：无
 ************************************************************************/
-void Double_InsertNode(DoubleLinkNode *list,unsigned int n)
+void Double_InsertNode(DoubleLinkNode_t *list,unsigned int n, DoubleLinkData_t dat)
 {
 	unsigned int i=n;
-	DoubleLinkNode *temp,*pNewNode;//临时节点
+	DoubleLinkNode_t *temp,*pNewNode;//临时节点
 
 	temp = list;//临时节点指向首节点
 	printf("在节点%d前插入新节点\r\n",n);
@@ -131,14 +139,15 @@ void Double_InsertNode(DoubleLinkNode *list,unsigned int n)
 	}
 	if(temp != NULL)//注意现在temp是指定节点的前一个节点
 	{
-		pNewNode = (DoubleLinkNode*)malloc(sizeof(DoubleLinkNode));//为新节点分配内存
+		pNewNode = (DoubleLinkNode_t*)malloc(sizeof(DoubleLinkNode_t));//为新节点分配内存
 		if(pNewNode == NULL)
 		{
 			printf("新节点空间分配失败！\r\n");
 			return;
 		}
-		printf("请输入新节点数据：");
-		scanf("%d",&pNewNode->Element);
+		//printf("请输入新节点数据：");
+		//scanf("%d",&pNewNode->Element);
+		pNewNode->data = dat;
 		pNewNode->next = temp->next;//新节点后继
 		temp->next = pNewNode;//前一个节点后继为新节点
 		pNewNode->pre = temp;//新节点前驱为前一个节点
@@ -160,10 +169,10 @@ void Double_InsertNode(DoubleLinkNode *list,unsigned int n)
  *输出：无
  *返回：无
 ************************************************************************/
-void Double_DeleteNote(DoubleLinkNode *list,unsigned int n)
+void Double_DeleteNode(DoubleLinkNode_t *list,unsigned int n)
 {
 	unsigned int i=n;
-	DoubleLinkNode* temp,*pDeleteNode;//临时节点
+	DoubleLinkNode_t* temp,*pDeleteNode;//临时节点
 
 	temp = list;//临时节点指向首节点
 	printf("删除节点%d\r\n",n);
@@ -199,9 +208,9 @@ void Double_DeleteNote(DoubleLinkNode *list,unsigned int n)
  *输出：无
  *返回：无
 ************************************************************************/
-void Double_DeleteLinkList(DoubleLinkNode *list)
+void Double_DeleteLinkList(DoubleLinkNode_t *list)
 {
-	DoubleLinkNode *temp,*p;//临时节点
+	DoubleLinkNode_t *temp,*p;//临时节点
 
 	temp = list->next;//临时节点指向首节点
 	list->next = NULL;//首节点指向空
@@ -229,31 +238,33 @@ void Double_DeleteLinkList(DoubleLinkNode *list)
 /************************************************************************
  *功能：创建链表
  *输入：n 链表节点个数，不包含首节点
+ *		dat:要传入的数据元素指针，若n=0,改参数可传NULL
  *输出：无
  *返回：链表首地址
 ************************************************************************/
-DoubleLinkNode *CycDouble_CreatLinkList(unsigned int n)
+DoubleLinkNode_t *CycDouble_CreatLinkList(unsigned int n, DoubleLinkData_t *dat)
 {
 	unsigned int i=0;
-	DoubleLinkNode *pHead,*pTail,*pNode;//定义首节点、尾节点、普通节点
+	DoubleLinkNode_t *pHead,*pTail,*pNode;//定义首节点、尾节点、普通节点
 
-	pHead = (DoubleLinkNode *)malloc(sizeof(DoubleLinkNode));//为首节点开辟空间，首节点没有数据
+	pHead = (DoubleLinkNode_t *)malloc(sizeof(DoubleLinkNode_t));//为首节点开辟空间，首节点没有数据
 	if(pHead == NULL)
 	{
 		printf("首节点空间分配失败！\r\n");
-		return;
+		exit(-1);
 	}
 	pTail = pHead;//尾节点指向首节点
 	for(i=0;i<n;i++)
 	{
-		pNode = (DoubleLinkNode*)malloc(sizeof(DoubleLinkNode));//新开辟空间给新节点
+		pNode = (DoubleLinkNode_t*)malloc(sizeof(DoubleLinkNode_t));//新开辟空间给新节点
 		if(pNode == NULL)
 		{
 			printf("新节点%d空间分配失败！\r\n",i);
-			return;
+			exit(-1);
 		}
-		printf("请输入节点%d数据：",i);
-		scanf("%d",&(pNode->Element));
+		//printf("请输入节点%d数据：",i);
+		//scanf("%d",&(pNode->Element));
+		pNode->data = dat[i];
 		pTail->next = pNode;//新建节点的前一个节点后继指向自己
 		pNode->pre = pTail;//新建节点前驱指向前一个节点
 		pTail = pNode;//新节点赋值给尾节点，尾节点就变成了当前新建的节点
@@ -270,20 +281,21 @@ DoubleLinkNode *CycDouble_CreatLinkList(unsigned int n)
  *输出：无
  *返回：无
 ************************************************************************/
-void CycDouble_TraverseList(DoubleLinkNode *list)
+void CycDouble_TraverseList(DoubleLinkNode_t *list)
 {
 	unsigned int i=0;
-	DoubleLinkNode *temp;//临时节点
+	DoubleLinkNode_t *temp;//临时节点
 
+	printf("遍历链表：\r\n");
 	temp = list->next;//首节点没有数据，所以临时节点指向第一个普通节点
 	if(temp == list || temp == NULL)
 	{
 		printf("链表为空！\r\n");
-		return 0;
+		return;
 	}
 	while(temp != list)
 	{
-		printf("节点%d元素：%d\r\n",i,temp->Element);
+		printf("节点%d元素：%d\r\n",i,temp->data.element);
 		temp = temp->next;//指向下一个节点
 		i++;
 	}
@@ -293,13 +305,14 @@ void CycDouble_TraverseList(DoubleLinkNode *list)
  *功能：修改节点n的值
  *输入：n:第n个节点,n从0开始算。只算普通节点
  *		list:链表地址
+ *		dat:改变节点的值
  *输出：无
  *返回：无
 ************************************************************************/
-void CycDouble_ChangeNodeValue(DoubleLinkNode * list,unsigned int n)
+void CycDouble_ChangeNodeValue(DoubleLinkNode_t * list,unsigned int n, DoubleLinkData_t dat)
 {
 	unsigned int i=n;
-	DoubleLinkNode* temp;//临时节点
+	DoubleLinkNode_t* temp;//临时节点
 
 	temp = list->next;//指向第一个有数据节点
 	if(temp == list)
@@ -317,9 +330,11 @@ void CycDouble_ChangeNodeValue(DoubleLinkNode * list,unsigned int n)
 	}
 	if(temp!=list)
 	{	
-		printf("节点%d修改为：",n);
-		scanf("%d",&(temp->Element));
-	}
+		//printf("节点%d修改为：",n);
+		//scanf("%d",&(temp->Element));
+		printf("修改节点%d\r\n",n);
+		temp->data = dat;
+	} 
 	else
 	{
 		printf("节点不存在！\r\n");
@@ -328,13 +343,14 @@ void CycDouble_ChangeNodeValue(DoubleLinkNode * list,unsigned int n)
 /************************************************************************
  *功能：在第n个节点前插入节点，节点从0开始算，只算普通节点
  *输入：n:第n个节点
+ *		dat:插入节点的值
  *输出：无
  *返回：无
 ************************************************************************/
-void CycDouble_InsertNode(DoubleLinkNode *list,unsigned int n)
+void CycDouble_InsertNode(DoubleLinkNode_t *list,unsigned int n, DoubleLinkData_t dat)
 {
 	unsigned int i=n;
-	DoubleLinkNode *temp,*pNewNode;//临时节点
+	DoubleLinkNode_t *temp,*pNewNode;//临时节点
 
 	temp = list;//临时节点指向首节点
 	printf("在节点%d之前插入新节点\r\n",n);
@@ -353,14 +369,15 @@ void CycDouble_InsertNode(DoubleLinkNode *list,unsigned int n)
 	}
 	if(temp != list)//注意现在temp是指定节点的前一个节点
 	{
-		pNewNode = (DoubleLinkNode*)malloc(sizeof(DoubleLinkNode));//为新节点分配内存
+		pNewNode = (DoubleLinkNode_t*)malloc(sizeof(DoubleLinkNode_t));//为新节点分配内存
 		if(pNewNode == NULL)
 		{
 			printf("新节点空间分配失败！\r\n");
 			return;
 		}
-		printf("请输入新节点数据：");
-		scanf("%d",&pNewNode->Element);
+		//printf("请输入新节点数据：");
+		//scanf("%d",&pNewNode->Element);
+		pNewNode->data = dat;
 		pNewNode->next = temp->next;//新节点后继
 		temp->next = pNewNode;//前一个节点后继为新节点
 		pNewNode->pre = temp;//新节点前驱为前一个节点
@@ -375,24 +392,26 @@ void CycDouble_InsertNode(DoubleLinkNode *list,unsigned int n)
 /************************************************************************
  *功能：在表尾增加节点,链表为空不能直接返回
  *输入：list:链表地址
+ *		dat:插入节点的值
  *输出：无
  *返回：无
 ************************************************************************/
-void CycDouble_AddNode(DoubleLinkNode *list)
+void CycDouble_AddNode(DoubleLinkNode_t *list, DoubleLinkData_t dat)
 {
-	DoubleLinkNode *temp,*pNewNode;//临时节点
+	DoubleLinkNode_t *temp,*pNewNode;//临时节点
 
 	temp = list;//临时节点指向首节点	
 	printf("在表尾插入新节点\r\n");
 
-	pNewNode = (DoubleLinkNode*)malloc(sizeof(DoubleLinkNode));//为新节点分配内存
+	pNewNode = (DoubleLinkNode_t*)malloc(sizeof(DoubleLinkNode_t));//为新节点分配内存
 	if(pNewNode == NULL)
 	{
 		printf("新节点空间分配失败！\r\n");
 		return;
 	}
-	printf("请输入新节点数据：");
-	scanf("%d",&pNewNode->Element);
+	//printf("请输入新节点数据：");
+	//scanf("%d",&pNewNode->Element);
+	pNewNode->data = dat;
 	pNewNode->next = temp;//新节点后继指向首节点
 	pNewNode->pre = temp->pre;//新节点前驱指向上一个尾节点
 	temp->pre = pNewNode;//首节点前驱指向新节点
@@ -405,10 +424,10 @@ void CycDouble_AddNode(DoubleLinkNode *list)
  *输出：无
  *返回：无
 ************************************************************************/
-void CycDouble_DeleteNote(DoubleLinkNode *list,unsigned int n)
+void CycDouble_DeleteNode(DoubleLinkNode_t *list,unsigned int n)
 {
 	unsigned int i=n;
-	DoubleLinkNode* temp,*pDeleteNode;//临时节点
+	DoubleLinkNode_t* temp,*pDeleteNode;//临时节点
 	temp = list;//临时节点指向首节点
 	printf("删除节点%d\r\n",n);
 	if(temp->next == list)
@@ -440,9 +459,9 @@ void CycDouble_DeleteNote(DoubleLinkNode *list,unsigned int n)
  *输出：无
  *返回：无
 ************************************************************************/
-void CycDouble_DeleteLinkList(DoubleLinkNode *list)
+void CycDouble_DeleteLinkList(DoubleLinkNode_t *list)
 {
-	DoubleLinkNode *temp,*p;//临时节点
+	DoubleLinkNode_t *temp,*p;//临时节点
 
 	temp = list->next;//临时节点指向首节点后继
 	if(temp == list)
@@ -473,35 +492,54 @@ void CycDouble_DeleteLinkList(DoubleLinkNode *list)
 
 void testDoubleLink(void)
 {
-	DoubleLinkNode *teacher = Double_CreatLinkList(4);//创建4个节点的链表,不包括首节点
+	DoubleLinkData_t age[4] = {10,11,12,13};
+	DoubleLinkData_t dat;
+
+	DoubleLinkNode_t *teacher = Double_CreatLinkList(sizeof(age)/sizeof(age[0]),age);//创建4个节点的链表,不包括首节点
+	Double_TraverseList(teacher);		//遍历链表
+
+	dat.element = 1;
+	Double_InsertNode(teacher,4,dat);		//在第n个节点前插入新节点
+	Double_TraverseList(teacher);		//遍历链表
 	
+	dat.element = 2;
+	Double_ChangeNodeValue(teacher,0,dat);	//修改第3个节点的值
 	Double_TraverseList(teacher);		//遍历链表
-	Double_InsertNode(teacher,4);		//在第n个节点前插入新节点
+	
+	Double_DeleteNode(teacher,4);		//删除节点
 	Double_TraverseList(teacher);		//遍历链表
-	Double_ChangeNodeValue(teacher,0);	//修改第3个节点的值
-	Double_TraverseList(teacher);		//遍历链表
-	Double_DeleteNote(teacher,4);		//删除节点
-	Double_TraverseList(teacher);		//遍历链表
+
 	Double_DeleteLinkList(teacher);		//删除链表
 	Double_TraverseList(teacher);		//遍历链表
 	
 }
 void testCycDoubleLink(void)
 {
-	DoubleLinkNode *people = CycDouble_CreatLinkList(10);
+	DoubleLinkData_t age[4] = {10,11,12,13};
+	DoubleLinkData_t dat;
 
+	DoubleLinkNode_t *people = CycDouble_CreatLinkList(sizeof(age)/sizeof(age[0]),age);
 	CycDouble_TraverseList(people);		//遍历链表
-	CycDouble_InsertNode(people,4);		//在第n个节点前插入新节点
+
+	dat.element = 1;
+	CycDouble_InsertNode(people,4,dat);		//在第n个节点前插入新节点
 	CycDouble_TraverseList(people);		//遍历链表
-	CycDouble_ChangeNodeValue(people,10);//修改第3个节点的值
+	
+	dat.element = 2;
+	CycDouble_ChangeNodeValue(people,3,dat);//修改第3个节点的值
 	CycDouble_TraverseList(people);		//遍历链表
-	CycDouble_AddNode(people);		//在链尾插入新节点
-	CycDouble_AddNode(people);		//在链尾插入新节点
+	
+	dat.element = 3;
+	CycDouble_AddNode(people,dat);		//在链尾插入新节点
+	CycDouble_AddNode(people,dat);		//在链尾插入新节点
 	CycDouble_TraverseList(people);		//遍历链表
-	CycDouble_DeleteNote(people,12);	//删除节点
+
+	CycDouble_DeleteNode(people,12);	//删除节点
 	CycDouble_TraverseList(people);		//遍历链表
-	CycDouble_DeleteNote(people,12);	//删除节点
+
+	CycDouble_DeleteNode(people,12);	//删除节点
 	CycDouble_TraverseList(people);		//遍历链表
+
 	CycDouble_DeleteLinkList(people);	//删除链表
 	CycDouble_TraverseList(people);		//遍历链表
 }
