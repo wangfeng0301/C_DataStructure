@@ -1,14 +1,94 @@
 /*********************************************************************
-*字符串：
+*字符串：实现C标准库<string.h>
 *参考资料：《数据结构与算法》张铭，王腾蛟，赵海燕等
 *wangfeng
 *2019.11.28
 **********************************************************************/
 #include <stdio.h>
+#include <stdlib.h>
 #include <malloc.h>
 #include <string.h>
 #include "string_my.h"
 
+/************************************************************************
+ *功能：在参数 str 所指向的字符串的前 n 个字节中搜索第一次出现字符 c（一个无符号字符）的位置。
+ *输入：str:要执行的内存块
+ *		c:以 int 形式传递的值，但是函数在每次字节搜索时是使用该值的无符号字符形式。
+ *		n:要被分析的字节数
+ *输出：无
+ *返回：返回一个指向匹配字节的指针，如果在给定的内存区域未出现字符，则返回 NULL。
+************************************************************************/
+void *Mymemchr(const void *str, int c, size_t n)
+{
+	char *temp;
+	if(str == NULL)
+	{
+		printf("字符串为空\r\n");
+		exit(-1);
+	}
+	temp = (char*)str;
+	while(*temp != 0 && n > 0)
+	{
+		if(*temp == c)
+			return (void *)temp;
+		n --;
+		temp ++;
+	}
+	return NULL;
+}
+/************************************************************************
+ *功能：把存储区 str1 和存储区 str2 的前 n 个字节进行比较
+ *输入：str1:要比较的字符串
+ *		str2:要比较的字符串
+ *		n:要比较的字节数
+ *输出：无
+ *返回：str<str2,<0;str1=str2,=0;str1>str2,>0
+************************************************************************/
+int Mymemcmp(const void *str1, const void *str2, size_t n)
+{
+	char *temp1,*temp2;
+	if(str1 == NULL || str2 == NULL)
+	{
+		printf("字符串不能为空！\r\n");
+		exit(-1);
+	}
+	temp1 = (char *)str1;
+	temp2 = (char *)str2;
+	while(n --)
+	{
+		if(*temp1 > *temp2)
+			return 1;
+		else if(*temp1 < *temp2)
+			return -1;
+		temp1 ++;
+		temp2 ++;
+	}
+	return 0;
+}
+/************************************************************************
+ *功能：从存储区 str2 复制 n 个字节到存储区 str1
+ *输入：str1:目标数组
+ *		str2:原数组
+ *		n:字节数
+ *输出：无
+ *返回：指向目标区str1的指针
+************************************************************************/
+void *Mymemcpy(void *str1, const void *str2, size_t n) 
+{
+	char *temp1,*temp2;
+	if(str1 == NULL || str2 == NULL)
+	{
+		printf("字符串不能为空！\r\n");
+		exit(-1);
+	}
+	temp1 = (char *)str1;
+	temp2 = (char *)str2;
+	while(n --)
+	{
+		*temp1++ = *temp2++;
+	}
+	return str1;
+}
 //计算字符串有效长度,不计结束符
 int Mystrlen(char * str)
 {
@@ -103,7 +183,7 @@ int *findNext(char *P)
 }
 
 
-void testString()
+void testString(void)
 {
 
 	char str1[]="Hello World";
@@ -111,7 +191,27 @@ void testString()
 	char str3[]="abcdaabcab";
 	int *next = findNext(str3);
 	char str4[]="-1234a56";
+	char ch = 'c';
+	int ret;
+	char *retchar;
 
+	printf("Mymemchr test\r\n");
+	retchar = (char*)Mymemchr(str1, ch, strlen(str1));
+	printf("[%c] 之后的字符串是 - [%s]\n", ch, retchar);
+
+	printf("\r\nMymemcmp test\r\n");
+	ret = Mymemcmp(str1, str2, 5);
+	if(ret > 0)
+		printf("str2 小于 str1\r\n");
+	else if(ret < 0) 
+		printf("str1 小于 str2\r\n");
+	else 
+		printf("str1 等于 str2\r\n");
+
+	printf("\r\nMymemcpy test\r\n");
+	printf("使用 memcpy 前: %s\n", str1);
+	Mymemcpy(str1, str2, strlen(str2));
+	printf("使用 memcpy 后: %s\n", str1);
 
 	printf("str1:%s\r\n",str1);
 	printf("str2:%s\r\n",str2);
