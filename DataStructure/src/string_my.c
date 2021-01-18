@@ -90,6 +90,50 @@ void *Mymemcpy(void *str1, const void *str2, size_t n)
 	return str1;
 }
 /************************************************************************
+ *功能：从存储区 str2 复制 n 个字节到存储区 str1
+ *		与Mymemcpy不同的是，该函数在目标区域和源区域重叠时依然有效。
+ *		如果出现覆区域重叠的情况，函数执行后会改变源目标的值
+ *输入：str1:目标数组
+ *		str2:原数组
+ *		n:字节数
+ *输出：无
+ *返回：指向目标区str1的指针
+************************************************************************/
+void *Mymemmove(void *str1, const void *str2, size_t n)
+{
+	char *dst = (char *)str1;
+	char *src = (char *)str2;
+
+	if(dst > src && src + n > dst)//目标区域在源区域之后，且有覆盖，此时需要从后向前赋值
+	{
+		dst += n - 1;
+		src += n - 1;
+		while(n --)
+			*dst-- = *src--;
+	}
+	else
+	{
+		while(n --)
+			*dst++ = *src++;
+	}
+	return dst;
+}
+/************************************************************************
+ *功能：复制字符 c（一个无符号字符）到参数 str 所指向的字符串的前 n 个字符
+ *输入：str:要填充的内存块
+ *		c:被设置的值
+ *		n:字节数
+ *输出：无
+ *返回：返回一个指向存储区 str 的指针
+************************************************************************/
+void *Mymemset(void *str, int c, size_t n)
+{
+	char *temp = str;
+	while(n --)
+		*temp++ = (char)c;
+	return str;
+}
+/************************************************************************
  *功能：src 所指向的字符串追加到 dest 所指向的字符串的结尾
  *输入：src:指向要追加的字符串，该字符串不会覆盖目标字符串。
  *		dest:指向目标数组，该数组包含了一个 C 字符串，且足够容纳追加后的字符串。
@@ -148,6 +192,105 @@ char *Mystrchr(const char *str, int c)
 	}
 	return NULL;
 }
+/************************************************************************
+ *功能：把 str1 所指向的字符串和 str2 所指向的字符串进行比较
+ *输入：str1:要进行比较的第一个字符串。
+ *		str2:要进行比较的第二个字符串。
+ *输出：无
+ *返回：返回值小于 0，则表示 str1 小于 str2。
+ *		返回值大于 0，则表示 str1 大于 str2。
+ *		返回值等于 0，则表示 str1 等于 str2。
+************************************************************************/
+int Mystrcmp(const char *str1, const char *str2)
+{
+	char *temp1,*temp2;
+	if(str1 == NULL || str2 == NULL)
+	{
+		printf("字符串不能为空！\r\n");
+		exit(-1);
+	}
+	temp1 = (char *)str1;
+	temp2 = (char *)str2;
+	while(*temp1 != 0 || *temp2 != 0)
+	{
+		if(*temp1 > *temp2)
+			return 1;
+		else if(*temp1 < *temp2)
+			return -1;
+		temp1 ++;
+		temp2 ++;
+	}
+	return 0;
+}
+/************************************************************************
+ *功能：把 str1 和 str2 进行比较，最多比较前 n 个字节
+ *输入：str1:要进行比较的第一个字符串。
+ *		str2:要进行比较的第二个字符串。
+ *		n:要比较的最大字符数
+ *输出：无
+ *返回：返回值小于 0，则表示 str1 小于 str2。
+ *		返回值大于 0，则表示 str1 大于 str2。
+ *		返回值等于 0，则表示 str1 等于 str2。
+************************************************************************/
+int Mystrncmp(const char *str1, const char *str2, size_t n)
+{
+	char *temp1,*temp2;
+	if(str1 == NULL || str2 == NULL)
+	{
+		printf("字符串不能为空！\r\n");
+		exit(-1);
+	}
+	temp1 = (char *)str1;
+	temp2 = (char *)str2;
+	while((*temp1 != 0 && *temp2 != 0) && n--)
+	{
+		if(*temp1 > *temp2)
+			return 1;
+		else if(*temp1 < *temp2)
+			return -1;
+		temp1 ++;
+		temp2 ++;
+	}
+	if(n)//由于字符串结束而提前结束
+	{
+		if(*temp1 == 0 && *temp2 != 0)//str1比str2短
+			return -1;
+		else if(*temp1 != 0 && *temp2 == 0)//str1比str2长
+			return 1;
+		else
+			return 0;
+	}
+	return 0;
+}
+/************************************************************************
+ *功能：把 str1 和 str2 进行比较，结果取决于 LC_COLLATE 的位置设置
+ *输入：str1:要进行比较的第一个字符串。
+ *		str2:要进行比较的第二个字符串。
+ *输出：无
+ *返回：返回值小于 0，则表示 str1 小于 str2。
+ *		返回值大于 0，则表示 str1 大于 str2。
+ *		返回值等于 0，则表示 str1 等于 str2。
+************************************************************************/
+int Mystrcoll(const char *str1, const char *str2)
+{
+
+}
+/************************************************************************
+ *功能：把 src 所指向的字符串复制到 dest
+ *输入：dest:指向用于存储复制内容的目标数组。
+ *		src:要复制的字符串。
+ *输出：无
+ *返回：返回一个指向最终的目标字符串 dest 的指针。
+************************************************************************/
+char *Mystrcpy(char *dest, const char *src)
+{
+	char *temp = dest;
+	while((*dest++ = *src++)!='\0');
+
+	return temp;
+}
+
+
 //计算字符串有效长度,不计结束符
 int Mystrlen(char * str)
 {
@@ -156,33 +299,6 @@ int Mystrlen(char * str)
 		lenth++;
 	return lenth;
 }
-
-//字符串str2复制到str1，返回指针指向str1
-char *Mystrcpy(char *str1,char *str2)
-{
-//	int i;
-	char *temp = str1;
-	while((*str1++ = *str2++)!='\0');
-
-	return temp;
-}
-
-//字符串比较
-int Mystrcmp(char* str1,char* str2)
-{
-	int i=0;
-	while(str1[i]!='\0' || str2[i]!='\0')
-	{
-		if(str1[i] > str2[i])
-			return 1;
-		else if(str1[i] < str2[i])
-			return -1;
-		i++;
-	}
-	return 0;
-}
-
-//字符串2接到字符串1后面
 
 
 
@@ -253,8 +369,11 @@ void testString(void)
 	char ch = 'c';
 	int ret;
 	char *retchar;
+	char src[]="Hello World";
+	char src2[]="Hello World";
+	char * dst,*dst2;
 	char str5[50] = {"12345"};
-
+	
 	printf("Mymemchr test\r\n");
 	retchar = (char*)Mymemchr(str1, ch, strlen(str1));
 	printf("[%c] 之后的字符串是 - [%s]\n", ch, retchar);
@@ -272,6 +391,26 @@ void testString(void)
 	printf("使用 memcpy 前: %s\n", str1);
 	Mymemcpy(str1, str2, strlen(str2));
 	printf("使用 memcpy 后: %s\n", str1);
+
+	printf("\r\nMymemmove test\r\n");
+	dst = &src[5];
+	printf("源字符串:%s\r\n",src);
+	printf("目标字符串:%s\r\n",dst);
+	Mymemcpy(dst, src, 6);
+	printf("使用 Mymemcpy 后,源字符串: %s\n", src);
+	printf("使用 Mymemcpy 后,目标字符串: %s\n", dst);
+	dst2 = &src2[5];
+	printf("源字符串:%s\r\n",src2);
+	printf("目标字符串:%s\r\n",dst2);
+	Mymemmove(dst, src2, 6);
+	printf("使用 Mymemmove 后,源字符串: %s\n", src2);
+	printf("使用 Mymemmove 后,目标字符串: %s\n", dst2);
+	printf("使用 Mymemcpy 错误！\n");
+	printf("使用 Mymemmove 正确！\n");
+
+	printf("\r\nMymemset test\r\n");
+	Mymemset(src2,'A',sizeof(src2)-1);
+	printf("src2:%s\r\n",src2);
 
 	printf("\r\nMystrcat test\r\n");
 	printf("str5:%s\r\n",str5);
@@ -291,17 +430,41 @@ void testString(void)
 	retchar = (char*)Mystrchr(str5, ch);
 	printf("[%s]中[%c] 之后的字符串是 - [%s]\n", str5, ch, retchar);
 
+	printf("\r\nMystrcmp test\r\n");
+	printf("str1:%s\r\n",str1);
+	printf("str2:%s\r\n",str2);
+	ret = Mystrcmp(str1, str2);
+	if(ret > 0)
+		printf("str2 小于 str1\r\n");
+	else if(ret < 0) 
+		printf("str1 小于 str2\r\n");
+	else 
+		printf("str1 等于 str2\r\n");
+
+	printf("\r\nMystrncmp test\r\n");
+	printf("str1:%s\r\n",str1);
+	printf("str2:%s\r\n",str2);
+	ret = Mystrncmp(str1, str2,5);
+	if(ret > 0)
+		printf("str2 小于 str1\r\n");
+	else if(ret < 0) 
+		printf("str1 小于 str2\r\n");
+	else 
+		printf("str1 等于 str2\r\n");
+
+	printf("\r\nMystrcpy test\r\n");
+	printf("str1:%s\r\n",str1);
+	printf("str2:%s\r\n",str2);
+	Mystrcpy(str1,str2);
+	//strcpy(str1,str2);
+	printf("str1:%s\r\n",str1);
+	printf("str1-str2= %d\r\n",Mystrcmp(str1,str2));
+
 	printf("str1:%s\r\n",str1);
 	printf("str2:%s\r\n",str2);
 
 	printf("Mystrlen(str1):%d\r\n",Mystrlen(str1));
 	printf("Mystrlen(str2):%d\r\n",Mystrlen(str2));
-	printf("str1-str2= %d\r\n",Mystrcmp(str1,str2));
-
-	strcpy(str1,str2);
-	printf("\r\nstr1:%s\r\n",str1);
-	Mystrcpy(str1,str2);
-	printf("\r\nstr1:%s\r\n",str1);
 	printf("str1-str2= %d\r\n",Mystrcmp(str1,str2));
 
 	printf("字符串%s转化为整数：%d\r\n",str4,Myatoi(str4));
