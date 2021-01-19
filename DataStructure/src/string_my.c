@@ -289,8 +289,59 @@ char *Mystrcpy(char *dest, const char *src)
 
 	return temp;
 }
+/************************************************************************
+ *功能：把 src 所指向的字符串复制到 dest，最多复制 n 个字符。当 src 的长度小于 n 时，dest 的剩余部分将用空字节填充。
+ *输入：dest:指向用于存储复制内容的目标数组。
+ *		src:要复制的字符串。
+ *		n:要从源中复制的字符数。
+ *输出：无
+ *返回：返回最终复制的字符串
+************************************************************************/
+char *Mystrncpy(char *dest, const char *src, size_t n)
+{
+	char *temp = dest;
+	while((*dest++ = *src++)!='\0' && n)
+		n--;
+	while(n)//src长度<n
+	{
+		*dest++ = 0;
+		n--;
+	}
 
+	return temp;
+}
+/************************************************************************
+ *功能：检索字符串 str1 开头连续有几个字符都不含字符串 str2 中的字符
+ *输入：str1:要被检索的 C 字符串。
+ *		str2:该字符串包含了要在 str1 中进行匹配的字符列表。
+ *输出：无
+ *返回：返回 str1 开头连续都不含字符串 str2 中字符的字符数。
+************************************************************************/
+size_t Mystrcspn(const char *str1, const char *str2)
+{
+	// map有32个字节的大小，也就是256个bit，可把map看做一个2维数组[32][8]
+    unsigned char map[32] = {0};
+	int count = 0;
 
+    // 每个ASCII码(设为c)有7bit，共128个。
+    // map数组作为位图记录每个ASCII码是否出现过。map一个字节可以记录8个ASCII码
+	// 如“0”的ASCII码是48，那么map[48/8]就是“0”在位图中的第几个字节
+	// 而48 & 7（换成二进制就是0011 0000 & 0000 0111）可以定位到这个字节的第几个bit
+    while(*str2)
+    {
+        map[*str2 >> 3] |= (1 << (*str2 & 7));
+        str2++;
+    }
+
+    map[0] |= 1;//0在ascii中表示空，所以前面*str退出时一定是空，所以置位
+    while(!(map[*str1 >> 3] & (1 << (*str1 & 7))))
+    {
+        count++;
+        str1++;
+    }
+
+    return count;
+}
 //计算字符串有效长度,不计结束符
 int Mystrlen(char * str)
 {
@@ -459,6 +510,20 @@ void testString(void)
 	//strcpy(str1,str2);
 	printf("str1:%s\r\n",str1);
 	printf("str1-str2= %d\r\n",Mystrcmp(str1,str2));
+
+	printf("\r\nMystrncpy test\r\n");
+	memset(str1,0,sizeof(str1));
+	printf("str1:%s\r\n",str1);
+	printf("str2:%s\r\n",str2);
+	//Mystrncpy(str1,str2,10);
+	Mystrncpy(str1,str2,3);
+	//strncpy(str1,str2,1);
+	printf("str1:%s\r\n",str1);
+	printf("str2:%s\r\n",str2);
+
+
+
+
 
 	printf("str1:%s\r\n",str1);
 	printf("str2:%s\r\n",str2);
