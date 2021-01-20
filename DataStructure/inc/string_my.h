@@ -9,13 +9,17 @@ void *Mymemset(void *str, int c, size_t n);
 char *Mystrcat(char *dest, const char *src);
 char *Mystrncat(char *dest, const char *src, size_t n);
 char *Mystrchr(const char *str, int c);
+char *Mystrrchr(const char *str, int c);
 int Mystrcmp(const char *str1, const char *str2);
 int Mystrncmp(const char *str1, const char *str2, size_t n);
 char *Mystrcpy(char *dest, const char *src);
 char *Mystrncpy(char *dest, const char *src, size_t n);
 size_t Mystrcspn(const char *str1, const char *str2);
+size_t Mystrspn(const char *str1, const char *str2);
+size_t Mystrlen(const char *str);
+char *Mystrpbrk(const char *str1, const char *str2);
+char *Mystrstr(const char *haystack, const char *needle);
 
-int Mystrlen(char * str);
 int Myatoi(char *str);//字符串转换为整数
 int *findNext(char *P);
 

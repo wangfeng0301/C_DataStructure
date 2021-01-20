@@ -193,6 +193,31 @@ char *Mystrchr(const char *str, int c)
 	return NULL;
 }
 /************************************************************************
+ *功能：在参数 str 所指向的字符串中搜索最后一次出现字符 c（一个无符号字符）的位置。
+ *输入：src:要被检索的 C 字符串。
+ *		c:在 str 中要搜索的字符。
+ *输出：无
+ *返回：返回 str 中最后一次出现字符 c 的位置。如果未找到该值，则函数返回一个空指针。
+************************************************************************/
+char *Mystrrchr(const char *str, int c)
+{
+	char *temp,*ret;
+	if(str == NULL)
+	{
+		printf("字符串为空\r\n");
+		exit(-1);
+	}
+	temp = (char *)str;
+	ret = NULL;
+	while(*temp != 0)
+	{
+		if(*temp == c)
+			ret = temp;
+		temp ++;
+	}
+	return ret;
+}
+/************************************************************************
  *功能：把 str1 所指向的字符串和 str2 所指向的字符串进行比较
  *输入：str1:要进行比较的第一个字符串。
  *		str2:要进行比较的第二个字符串。
@@ -326,7 +351,7 @@ size_t Mystrcspn(const char *str1, const char *str2)
     // 每个ASCII码(设为c)有7bit，共128个。
     // map数组作为位图记录每个ASCII码是否出现过。map一个字节可以记录8个ASCII码
 	// 如“0”的ASCII码是48，那么map[48/8]就是“0”在位图中的第几个字节
-	// 而48 & 7（换成二进制就是0011 0000 & 0000 0111）可以定位到这个字节的第几个bit
+	// 而48 & 7（换成二进制就是0011 0000 & 0000 0111,一个字节8bit，所以&7）可以定位到这个字节的第几个bit
     while(*str2)
     {
         map[*str2 >> 3] |= (1 << (*str2 & 7));
@@ -342,17 +367,111 @@ size_t Mystrcspn(const char *str1, const char *str2)
 
     return count;
 }
-//计算字符串有效长度,不计结束符
-int Mystrlen(char * str)
+/************************************************************************
+ *功能：检索字符串 str1 中第一个不在字符串 str2 中出现的字符下标
+ *输入：str1:要被检索的 C 字符串。
+ *		str2:该字符串包含了要在 str1 中进行匹配的字符列表。
+ *输出：无
+ *返回：返回 str1 中第一个不在字符串 str2 中出现的字符下标。
+************************************************************************/
+size_t Mystrspn(const char *str1, const char *str2)
+{
+	// map有32个字节的大小，也就是256个bit，可把map看做一个2维数组[32][8]
+    unsigned char map[32] = {0};
+	int count = 0;
+
+    // 每个ASCII码(设为c)有7bit，共128个。
+    // map数组作为位图记录每个ASCII码是否出现过。map一个字节可以记录8个ASCII码
+	// 如“0”的ASCII码是48，那么map[48/8]就是“0”在位图中的第几个字节
+	// 而48 & 7（换成二进制就是0011 0000 & 0000 0111,一个字节8bit，所以&7）可以定位到这个字节的第几个bit
+    while(*str2)
+    {
+        map[*str2 >> 3] |= (1 << (*str2 & 7));
+        str2++;
+    }
+
+    //map[0] |= 1;//0在ascii中表示空，所以前面*str退出时一定是空，所以置位
+    while((map[*str1 >> 3] & (1 << (*str1 & 7))))
+    {
+        count++;
+        str1++;
+    }
+
+    return count;
+}
+/************************************************************************
+ *功能：检索字符串 str1 中第一个匹配字符串 str2 中字符的字符，不包含空结束字符。
+ *		也就是说，依次检验字符串 str1 中的字符，当被检验字符在字符串 str2 中也包含时，则停止检验，并返回该字符位置。
+ *输入：str1:要被检索的 C 字符串。
+ *		str2:该字符串包含了要在 str1 中进行匹配的字符列表。
+ *输出：无
+ *返回：返回 str1 中第一个匹配字符串 str2 中字符的字符，如果未找到字符则返回 NULL。
+************************************************************************/
+char *Mystrpbrk(const char *str1, const char *str2)
+{
+	// map有32个字节的大小，也就是256个bit，可把map看做一个2维数组[32][8]
+    /*unsigned char map[32] = {0};
+	char *ret;
+
+    // 每个ASCII码(设为c)有7bit，共128个。
+    // map数组作为位图记录每个ASCII码是否出现过。map一个字节可以记录8个ASCII码
+	// 如“0”的ASCII码是48，那么map[48/8]就是“0”在位图中的第几个字节
+	// 而48 & 7（换成二进制就是0011 0000 & 0000 0111,一个字节8bit，所以&7）可以定位到这个字节的第几个bit
+    while(*str2)
+    {
+        map[*str2 >> 3] |= (1 << (*str2 & 7));
+        str2++;
+    }
+
+    map[0] |= 1;//0在ascii中表示空，所以前面*str退出时一定是空，所以置位
+	ret = NULL;
+    while(!(map[*str1 >> 3] & (1 << (*str1 & 7))))
+    {
+        str1++;
+    }
+	return (char *)str1;*/
+
+	return (char *)str1 + Mystrcspn(str1,str2);
+}
+/************************************************************************
+ *功能：计算字符串 str 的长度，直到空结束字符，但不包括空结束字符。
+ *输入：str:要计算长度的字符串。
+ *输出：无
+ *返回：返回字符串的长度。
+************************************************************************/
+size_t Mystrlen(const char *str)
 {
 	int lenth=0;
 	while(*str++ != '\0')
 		lenth++;
 	return lenth;
 }
-
-
-
+/************************************************************************
+ *功能：在字符串 haystack 中查找第一次出现字符串 needle 的位置，不包含终止符 '\0'。
+ *输入：haystack:要被检索的 C 字符串。
+ *		needle:在 haystack 字符串内要搜索的小字符串。
+ *输出：无
+ *返回：返回在 haystack 中第一次出现 needle 字符串的位置，如果未找到则返回 null。
+************************************************************************/
+char *Mystrstr(const char *haystack, const char *needle)
+{
+	int len,len2;
+	if(!(len=strlen(needle)))//needle长度为0，表示needle字符串为空
+		return(char*)haystack;
+	len2 = strlen(haystack);//去字符串haystack长度
+	for(;*haystack;++haystack)
+	{
+		if(len2 >= len)//若haystack剩余长度小于needle长度，则needle必然不是haystack子串
+		{
+			if(*haystack==*needle && strncmp(haystack,needle,len)==0)
+				return(char*)haystack;
+			len2 --;
+		}
+		else
+			break;
+	}
+	return NULL;
+}
 
 //atoi函数，实现字符串转换为整数
 int Myatoi(char *str)
@@ -412,13 +531,13 @@ int *findNext(char *P)
 void testString(void)
 {
 
-	char str1[]="Hello World";
+	char str1[30]="Hello World";
 	char str2[]="Thanks";
 	char str3[]="abcdaabcab";
 	int *next = findNext(str3);
 	char str4[]="-1234a56";
 	char ch = 'c';
-	int ret;
+	int ret,i;
 	char *retchar;
 	char src[]="Hello World";
 	char src2[]="Hello World";
@@ -475,11 +594,13 @@ void testString(void)
 	retchar = Mystrncat(str5,str1,5);
 	printf("链接str5和str1：%s\r\n",retchar);
 
-	printf("\r\nMystrchr test\r\n");
+	printf("\r\nMystrchr/Mystrrchr test\r\n");
 	printf("str5:%s\r\n",str5);
-	ch = '5';
+	ch = 'T';
 	retchar = (char*)Mystrchr(str5, ch);
-	printf("[%s]中[%c] 之后的字符串是 - [%s]\n", str5, ch, retchar);
+	printf("Mystrchr:[%s]中[%c] 之后的字符串是 - [%s]\n", str5, ch, retchar);
+	retchar = (char*)Mystrrchr(str5, ch);
+	printf("Mystrrchr:[%s]中[%c] 之后的字符串是 - [%s]\n", str5, ch, retchar);
 
 	printf("\r\nMystrcmp test\r\n");
 	printf("str1:%s\r\n",str1);
@@ -521,16 +642,72 @@ void testString(void)
 	printf("str1:%s\r\n",str1);
 	printf("str2:%s\r\n",str2);
 
-
-
-
-
+	printf("\r\nMystrcspn test\r\n");
 	printf("str1:%s\r\n",str1);
 	printf("str2:%s\r\n",str2);
+	printf("第一个匹配的字符是在 %d\n", strcspn(str1,str2) + 1);
+	printf("第一个匹配的字符是在 %d\n", Mystrcspn(str1,str2) + 1);
 
+	printf("\r\nMystrspn test\r\n");
+	printf("str1:%s\r\n",str1);
+	printf("str2:%s\r\n",str2);
+	printf("第一个不匹配的字符是在 %d\n", strspn(str1,str2) + 1);
+	printf("第一个不匹配的字符是在 %d\n", Mystrspn(str1,str2) + 1);
+
+	printf("\r\nMystrpbrk test\r\n");
+	strcpy(str2,"123");
+	printf("str1:%s\r\n",str1);
+	printf("str2:%s\r\n",str2);
+	retchar = strpbrk(str1,str2);
+	if(retchar)
+		printf("第一个匹配的字符是 %c\n", *retchar);
+	else
+		printf("未找到匹配字符\n");
+	retchar = Mystrpbrk(str1,str2);
+	if(retchar)
+		printf("第一个匹配的字符是 %c\n", *retchar);
+	else
+		printf("未找到匹配字符\n");
+	
+	
+
+	printf("\r\nMystrlen test\r\n");
+	printf("str1:%s\r\n",str1);
+	printf("str2:%s\r\n",str2);
 	printf("Mystrlen(str1):%d\r\n",Mystrlen(str1));
 	printf("Mystrlen(str2):%d\r\n",Mystrlen(str2));
-	printf("str1-str2= %d\r\n",Mystrcmp(str1,str2));
+	
+	printf("\r\nMystrstr test\r\n");
+	strcpy(str1,"helloWorld");
+	strcpy(str2,"Worl");
+	printf("str1:%s\r\n",str1);
+	printf("str2:%s\r\n",str2);
+	retchar = strstr(str1,str2);
+	printf("str1中首次出现str2的字符串:%s\r\n",retchar);
+	retchar = Mystrstr(str1,str2);
+	printf("str1中首次出现str2的字符串:%s\r\n",retchar);
+
+	printf("\r\nMystrtok test\r\n");
+	strcpy(str1,"hello World test");
+	strcpy(str2," ");
+	printf("str1:%s\r\n",str1);
+	printf("str2:%s\r\n",str2);
+	retchar = strtok(str1,str2);
+	printf("str1被str2分割后:%s\r\n",retchar);
+	//printf("str1:%s\r\n",str1);
+	//printf("str2:%s\r\n",str2);
+	for(i = 0;i<sizeof(str1);i++)
+		printf("%d ",str1[i]);
+	strcpy(str1,"hello Worldtest");
+	printf("\r\n中途改变str1的值str1:%s\r\n",str1);
+	retchar = strtok(NULL,str2);
+	printf("\r\nretchar:%s\r\n",retchar);
+	for(i = 0;i<sizeof(str1);i++)
+		printf("%d ",str1[i]);
+	retchar = strtok(NULL,str2);
+	printf("\r\nretchar:%s\r\n",retchar);
+	for(i = 0;i<sizeof(str1);i++)
+		printf("%d ",str1[i]);
 
 	printf("字符串%s转化为整数：%d\r\n",str4,Myatoi(str4));
 	printf("字符串转化为整数：%d\r\n",Myatoi(str4));
