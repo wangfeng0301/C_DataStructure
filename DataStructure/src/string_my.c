@@ -472,7 +472,51 @@ char *Mystrstr(const char *haystack, const char *needle)
 	}
 	return NULL;
 }
+/************************************************************************
+ *功能：分解字符串 str 为一组字符串，delim 为分隔符。
+ *输入：str:要被分解成一组小字符串的字符串。
+ *		delim:包含分隔符的 C 字符串。
+ *输出：无
+ *返回：返回被分解的第一个子字符串，如果没有可检索的字符串，则返回一个空指针。
+ *详解：
+************************************************************************/
+char *Mystrtok(char *str, const char *delim)
+{
+	// map有32个字节的大小，也就是256个bit，可把map看做一个2维数组[32][8]
+	unsigned char map[32] = {0};
+	static char *laststr;
+	char *string_org;
 
+	if(str == NULL)
+		str = laststr;
+	// 每个ASCII码(设为c)有7bit，共128个。
+	// map数组作为位图记录每个ASCII码是否出现过。map一个字节可以记录8个ASCII码
+	// 如“0”的ASCII码是48，那么map[48/8]就是“0”在位图中的第几个字节
+	// 而48 & 7（换成二进制就是0011 0000 & 0000 0111,一个字节8bit，所以&7）可以定位到这个字节的第几个bit
+	while(*delim)
+	{
+		map[*delim >> 3] |= (1 << (*delim & 7));
+		delim ++;
+	}
+	//map[0] |= 1;//0在ascii中表示空，所以前面*str退出时一定是空，所以置位
+
+	while((map[*str >> 3] & (1 << (*str & 7))) && *str)//找到第一个与分隔符不相等的位置
+		str ++;
+	string_org = str;
+	for(;*str;str++)//循环直到找到分隔符或字符串结束,注意这里不能用while(*str++)判断
+	{
+		if((map[*str >> 3] & (1 << (*str & 7))))
+		{
+			*str++ = 0;//找到分隔符的位置清零
+			break;
+		}
+	}
+	laststr = str;//记录本次指针，下次使用
+	if(string_org == str)//这种情况是字符串中不包含分隔符
+		return NULL;
+	else
+		return string_org;
+}
 //atoi函数，实现字符串转换为整数
 int Myatoi(char *str)
 {
@@ -692,19 +736,19 @@ void testString(void)
 	strcpy(str2," ");
 	printf("str1:%s\r\n",str1);
 	printf("str2:%s\r\n",str2);
-	retchar = strtok(str1,str2);
+	retchar = Mystrtok(str1,str2);
 	printf("str1被str2分割后:%s\r\n",retchar);
 	//printf("str1:%s\r\n",str1);
 	//printf("str2:%s\r\n",str2);
 	for(i = 0;i<sizeof(str1);i++)
 		printf("%d ",str1[i]);
-	strcpy(str1,"hello Worldtest");
-	printf("\r\n中途改变str1的值str1:%s\r\n",str1);
-	retchar = strtok(NULL,str2);
+	//strcpy(str1,"hello Worldtest");
+	//printf("\r\n中途改变str1的值str1:%s\r\n",str1);
+	retchar = Mystrtok(NULL,str2);
 	printf("\r\nretchar:%s\r\n",retchar);
 	for(i = 0;i<sizeof(str1);i++)
 		printf("%d ",str1[i]);
-	retchar = strtok(NULL,str2);
+	retchar = Mystrtok(NULL,str2);
 	printf("\r\nretchar:%s\r\n",retchar);
 	for(i = 0;i<sizeof(str1);i++)
 		printf("%d ",str1[i]);

@@ -19,6 +19,7 @@ size_t Mystrspn(const char *str1, const char *str2);
 size_t Mystrlen(const char *str);
 char *Mystrpbrk(const char *str1, const char *str2);
 char *Mystrstr(const char *haystack, const char *needle);
+char *Mystrtok(char *str, const char *delim);
 
 int Myatoi(char *str);//字符串转换为整数
 int *findNext(char *P);
