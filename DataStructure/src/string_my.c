@@ -2,7 +2,7 @@
 *字符串：实现C标准库<string.h>
 *参考资料：《数据结构与算法》张铭，王腾蛟，赵海燕等
 *wangfeng
-*2019.11.28-2021.1.21
+*2019.11.28-2021.1.27
 **********************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
@@ -545,7 +545,7 @@ int Myatoi(char *str)
 }
 
 //计算字符串特征向量
-int *findNext(char *P)
+static int *findNext(char *P)
 {
 	int i=0;
 	int k=-1;
@@ -570,8 +570,44 @@ int *findNext(char *P)
 	}
 	return next;
 }
-
-
+/**************************************************************************
+ *功能：KMP算法求子串在主串中的位置
+ *输入：s:主串
+ *		p:子串
+ *输出：无
+ *返回：子串在主串中的起始位置。若不存在，返回-1
+ *详解：
+************************************************************************/
+int KmpSearch(char *s,char *p)
+{
+	int i = 0;
+	int j = 0;
+	int sLen = strlen(s);
+	int pLen = strlen(p);
+	int *next = findNext(p);
+	if(sLen < pLen)//主串长度小于子串，匹配无法成功
+		return -1;
+	while (i < sLen && j < pLen)
+	{
+		//①如果j = -1，或者当前字符匹配成功（即S[i] == P[j]），都令i++，j++    
+		if (j == -1 || s[i] == p[j])
+		{
+			i++;
+			j++;
+		}
+		else
+		{
+			//②如果j != -1，且当前字符匹配失败（即S[i] != P[j]），则令 i 不变，j = next[j]    
+			//next[j]即为j所对应的next值
+			j = next[j];
+		}
+	}
+	free(next);
+	if (j == pLen)
+		return i - j;
+	else
+		return -1;
+}
 void testString(void)
 {
 
@@ -755,4 +791,15 @@ void testString(void)
 
 	printf("字符串%s转化为整数：%d\r\n",str4,Myatoi(str4));
 	printf("字符串转化为整数：%d\r\n",Myatoi(str4));
+
+	printf("\r\nKmpSearch test\r\n");
+	strcpy(str1,"hello World test");
+	strcpy(str2,"hello");
+	printf("str1:%s\r\n",str1);
+	printf("str2:%s\r\n",str2);
+	ret = KmpSearch(str1,str2);
+	printf("str2在str1中的位置：%d\r\n",ret);
+	for(i = 0;i<strlen(str2);i++)
+		printf("%c",*(str1+ret+i));
+	printf("\r\n");
 }
