@@ -3,44 +3,43 @@
  *利用完全二叉树线性表存储堆数据
  *参考资料：《数据结构与算法》张铭，王腾蛟，赵海燕等
  *wangfeng
- *2019.11.29
+ *2019.11.29-2021.1.29
 ************************************************************************/
 #include <stdio.h>
 #include <malloc.h>
 #include "heap.h"
 
-static void SiftDown(Heap *heap,int left);			//向下筛选
-static void SiftUp(Heap *heap,int pos);				//向上筛选
-void BuildMinHeap(Heap *heap,int *data,int size);	//建立最小堆结构
-bool MinHeapInsert(Heap *heap,int node);			//插入新节点
-int MinHeapRemoveMin(Heap *heap);					//删除堆顶，即最小值
-static int MinHeapRemove(Heap *heap,int pos);		//删除指定下标的元素
+static void SiftDown(Heap_t *heap,int left);			//向下筛选
+static void SiftUp(Heap_t *heap,int pos);				//向上筛选
+void BuildMinHeap(Heap_t *heap,int *data,int size);	//建立最小堆结构
+bool MinHeapInsert(Heap_t *heap,int node);			//插入新节点
+int MinHeapRemoveMin(Heap_t *heap);					//删除堆顶，即最小值
+static int MinHeapRemove(Heap_t *heap,int pos);		//删除指定下标的元素
 
 /************************************************************************/
-/*以根i为根向下进行调整                                                 */
-/*left:从left开始向下筛选
+/*以parent为根向下进行调整,即大数放在下面                               */
+/*parent:父节点编号，从此节点开始调整
 /*返回：无
 /************************************************************************/
-static void SiftDown(Heap *heap,int left)
+static void SiftDown(Heap_t *heap,int parent)
 {
-	int i = left;									//从left开始向下筛选
-	int j = 2*i+1;									//i的左子节点
-	int temp = heap->heapArray[i];					//保存父节点
+	int child = 2*parent + 1;						//父节点的左子节点编号
+	int temp = heap->heapArray[parent];				//保存父节点
 
-	while(j < heap->CurrentSize)					//节点编号小于当前大小
+	while(child < heap->CurrentSize)				//节点编号小于当前大小
 	{
-		if((j < heap->CurrentSize-1) && (heap->heapArray[j] > heap->heapArray[j+1]))//若有右子节点，且右子节点小于左子节点
-			j++;									//j指向右子节点
-		if(temp > heap->heapArray[j])				//父节点大于子节点,交换位置
+		if((child < heap->CurrentSize-1) && (heap->heapArray[child] > heap->heapArray[child+1]))//若有右子节点，且右子节点小于左子节点
+			child++;								//child指向右子节点
+		if(temp > heap->heapArray[child])			//父节点大于子节点,交换位置
 		{
-			heap->heapArray[i] = heap->heapArray[j];
-			i = j;
-			j = 2*i+1;								//继续向下走，左子节点
+			heap->heapArray[parent] = heap->heapArray[child];
+			parent = child;
+			child = 2*parent+1;						//继续向下走，左子节点
 		}
 		else
 			break;									//堆序性满足时退出
 	}
-	heap->heapArray[i] = temp;
+	heap->heapArray[parent] = temp;
 }
 
 /************************************************************************/
@@ -48,7 +47,7 @@ static void SiftDown(Heap *heap,int left)
 /*heap:堆结构体
 /*返回：无
 /************************************************************************/
-static void SiftUp(Heap *heap,int pos)
+static void SiftUp(Heap_t *heap,int pos)
 {
 	int position = pos;								//从当前大小位置开始向上调整
 	int temp = heap->heapArray[position];			//保存当前值
@@ -68,7 +67,7 @@ static void SiftUp(Heap *heap,int pos)
 /*size:数据大小
 /*返回：无
 /************************************************************************/
-void BuildMinHeap(Heap *heap,int *data,int size)
+void BuildMinHeap(Heap_t *heap,int *data,int size)
 {
 	int i;
 	if(heap->MaxSize<=0)										//堆数据最大空间必须大于0
@@ -90,7 +89,7 @@ void BuildMinHeap(Heap *heap,int *data,int size)
 /*heap:堆结构变量
 /*返回：
 /************************************************************************/
-static bool MinHeapInsert(Heap *heap,int node)
+static bool MinHeapInsert(Heap_t *heap,int node)
 {
 	printf("插入节点数据：%d\r\n",node);
 	if(heap->CurrentSize == heap->MaxSize)						//如果堆已满，返回false
@@ -107,7 +106,7 @@ static bool MinHeapInsert(Heap *heap,int node)
 /*heap:堆结构变量
 /*返回：堆中最小值
 /************************************************************************/
-static  int MinHeapRemoveMin(Heap *heap)
+static int MinHeapRemoveMin(Heap_t *heap)
 {
 	int temp;
 	if(0 == heap->CurrentSize)										//当前大小为0，无法删除
@@ -135,7 +134,7 @@ static  int MinHeapRemoveMin(Heap *heap)
 /*heap:堆结构变量
 /*返回：给定下标节点值
 /************************************************************************/
-static int MinHeapRemove(Heap *heap,int pos)
+static int MinHeapRemove(Heap_t *heap,int pos)
 {
 	int temp;
 	printf("删除节点%d\r\n",pos);
@@ -152,33 +151,33 @@ static int MinHeapRemove(Heap *heap,int pos)
 		SiftDown(heap,pos);											//否则从此节点开始向下调整
 	return temp;													//返回删除的数据
 }
-
-void testHeap(void)
+/************************************************************************/
+/*广度优先遍历最小堆                                                    */
+/*heap:堆结构变量
+/*返回：无
+/************************************************************************/
+void MinHeapTraverse(Heap_t *heap)
 {
 	int i;
-	int HeapVal[9] = {9,9,7,6,20,4,33,2,1};
-	Heap heap;														//定义一个堆结构变量
-	heap.MaxSize = 10;												//堆最大空间为10
-	BuildMinHeap(&heap,HeapVal,sizeof(HeapVal)/sizeof(int));		//构建一个堆结构
-
-	for(i=0;i<heap.CurrentSize;i++)
-		printf("%d ",heap.heapArray[i]);
+	printf("遍历：");
+	for(i=0;i<heap->CurrentSize;i++)
+		printf("%d ",heap->heapArray[i]);
 	printf("\r\n");
+}
+void testHeap(void)
+{
+	int HeapVal[9] = {9,9,7,6,20,4,33,2,1};
+	Heap_t heap;														//定义一个堆结构变量
+	heap.MaxSize = 10;												    //需要指定堆最大空间为10
+	BuildMinHeap(&heap,HeapVal,sizeof(HeapVal)/sizeof(HeapVal[0]));		//构建一个堆结构
+	MinHeapTraverse(&heap);
 
 	if(TRUE == MinHeapInsert(&heap,22))
-	{
-		for(i=0;i<heap.CurrentSize;i++)
-			printf("%d ",heap.heapArray[i]);
-		printf("\r\n");
-	}
+		MinHeapTraverse(&heap);
 
 	printf("最小值：%d\r\n",MinHeapRemoveMin(&heap));
-	for(i=0;i<heap.CurrentSize;i++)
-		printf("%d ",heap.heapArray[i]);
-	printf("\r\n");
+	MinHeapTraverse(&heap);
 
 	printf("被删除数据：%d\r\n",MinHeapRemove(&heap,3));
-	for(i=0;i<heap.CurrentSize;i++)
-		printf("%d ",heap.heapArray[i]);
-	printf("\r\n");
+	MinHeapTraverse(&heap);
 }

@@ -15,9 +15,9 @@
 /* rightchild:	ÓÒ×ÓÊ÷
 /* ·µ»Ø£º		¸ù½ÚµãµØÖ·
 /************************************************************************/
-static BinaryTreeNode *CreateBinaryTree(BinaryTreeNode *parent,BinaryTreeNode *leftchild,BinaryTreeNode *rightchild,ValueType data)
+static BinaryTreeNode_t *CreateBinaryTree(BinaryTreeNode_t *parent, BinaryTreeNode_t *leftchild, BinaryTreeNode_t *rightchild, ValueType_t data)
 {
-	BinaryTreeNode *temp = (BinaryTreeNode*)malloc(sizeof(BinaryTreeNode));	//¿ª±Ù¿Õ¼ä
+	BinaryTreeNode_t *temp = (BinaryTreeNode_t *)malloc(sizeof(BinaryTreeNode_t));	//¿ª±Ù¿Õ¼ä
 	if(temp == NULL)
 	{
 		printf("´´½¨Ê§°Ü!\r\n");
@@ -35,10 +35,10 @@ static BinaryTreeNode *CreateBinaryTree(BinaryTreeNode *parent,BinaryTreeNode *l
 /* Ìî³ä¶þ²æÊ÷£¬ÔÚÄ³½Úµã²åÈëÐÂ½Úµã  
 /* parent:¸¸½Úµã£¬ÔÚ´Ë½Úµãºó²åÈë
 /* currentnode:		µ±Ç°½Úµã£¬Òª²åÈëµÄ½Úµã
-/* leftRight£º	ÔÚ×ó×Ó½Úµã²åÈë»¹ÊÇÓÒ×Ó½Úµã²åÈë
+/* LeftRight£º	ÔÚ×ó×Ó½Úµã²åÈë»¹ÊÇÓÒ×Ó½Úµã²åÈë
 /* ·µ»Ø£ºTRUE ³É¹¦£»FALSE Ê§°Ü
 /************************************************************************/
-static bool InsertBinaryTreeNode(BinaryTreeNode *parent,BinaryTreeNode *currentnode,unsigned char LeftRight)
+static bool InsertBinaryTreeNode(BinaryTreeNode_t *parent, BinaryTreeNode_t *currentnode, unsigned char LeftRight)
 {
 	if(parent == NULL)
 	{
@@ -66,9 +66,9 @@ static bool InsertBinaryTreeNode(BinaryTreeNode *parent,BinaryTreeNode *currentn
 /*newpointer:´ý²åÈëµÄÐÂ½Úµã
 /* °´ÕÕÊäÈëÊý¾Ý´óÐ¡£¬×Ô¶¯Ñ¡ÔñºÏÊÊµÄ½Úµã²åÈë¡£²åÈëºóÐè·ûºÏ¶þ²æËÑË÷Ê÷µÄÌØµã£¬¼´×óÊ÷Ð¡£¬ÓÒÊ÷´ó
 /*************************************************************************************/
-void BinarySearchTree_InsertNode(BinaryTreeNode *root,BinaryTreeNode *newpointer)
+void BinarySearchTree_InsertNode(BinaryTreeNode_t *root,BinaryTreeNode_t *newpointer)
 {
-	BinaryTreeNode *pointer = NULL;
+	BinaryTreeNode_t *pointer = NULL;
 	if(root == NULL)														//Èç¹ûÊÇ¿ÕÊ÷
 	{
 		root = newpointer;													//ÔòÓÃÖ¸Õënewpointer×÷ÎªÊ÷¸ù
@@ -111,12 +111,12 @@ void BinarySearchTree_InsertNode(BinaryTreeNode *root,BinaryTreeNode *newpointer
 /*************************************************************************************/
 /*¶þ²æËÑË÷Ê÷²éÕÒ½ÚµãËã·¨															 */
 /*root:¶þ²æËÑË÷Ê÷µÄ¸ù½Úµã
-/*ValueType:Òª²éÕÒ½ÚµãµÄÊý¾ÝÖµ
+/*data:Òª²éÕÒ½ÚµãµÄÊý¾ÝÖµ
 /* ·µ»Ø£ºÂú×ãÊý¾ÝÖµµÄ½ÚµãµØÖ·
 /*************************************************************************************/
-static BinaryTreeNode* BinarySearchTree_SearchNode(BinaryTreeNode *root,ValueType data)
+static BinaryTreeNode_t* BinarySearchTree_SearchNode(BinaryTreeNode_t *root, ValueType_t data)
 {
-	BinaryTreeNode *pointer = NULL;
+	BinaryTreeNode_t *pointer = NULL;
 	if(root == NULL)														//Èç¹ûÊÇ¿ÕÊ÷
 	{
 		printf("¶þ²æÊ÷Îª¿Õ£¡\r\n");
@@ -126,14 +126,14 @@ static BinaryTreeNode* BinarySearchTree_SearchNode(BinaryTreeNode *root,ValueTyp
 		pointer = root;
 	while(pointer != NULL)
 	{
-		if(data.val == pointer->val.val)									//´æÔÚÏàµÈÔªËØÔò²»²åÈë
+		if(data.val == pointer->val.val)									
 		{
 			printf("ÕÒµ½£º %d\r\n",pointer->val.val);
 			return pointer;
 		}
-		else if(data.val < pointer->val.val)								//´ý²åÈë½ÚµãÐ¡ÓÚµ±Ç°½Úµã¹Ø¼üÂëÖµ
+		else if(data.val < pointer->val.val)								//Òª²éÕÒµÄÖµÐ¡ÓÚµ±Ç°½ÚµãÖµ£¬Ïò×ó²éÕÒ
 		{
-			if(pointer->left == NULL)										//Èç¹ûpointerÃ»ÓÐ×ó×ÓÊ÷
+			if(pointer->left == NULL)										
 			{
 				printf("´Ë¶þ²æÊ÷ÖÐ²»´æÔÚ´ËÖµ£¡\r\n");
 				return NULL;
@@ -141,7 +141,7 @@ static BinaryTreeNode* BinarySearchTree_SearchNode(BinaryTreeNode *root,ValueTyp
 			else
 				pointer = pointer->left;									//Ïò×óÏÂ½µ
 		}
-		else if(data.val > pointer->val.val)
+		else if(data.val > pointer->val.val)								//Òª²éÕÒµÄÖµ´óÓÚµ±Ç°½ÚµãÖµ£¬ÏòÓÒ²éÕÒ
 		{
 			if(pointer->right == NULL)										//Èç¹ûpointerÃ»ÓÐÓÒ×ÓÊ÷
 			{
@@ -158,10 +158,10 @@ static BinaryTreeNode* BinarySearchTree_SearchNode(BinaryTreeNode *root,ValueTyp
 /*¶þ²æËÑË÷Ê÷½ÚµãÉ¾³ýËã·¨															 
 /*pointer:´ýÉ¾³ý½Úµã
 /*************************************************************************************/
-void BinarySearchTree_DeleteNode(BinaryTreeNode *pointer)
+void BinarySearchTree_DeleteNode(BinaryTreeNode_t *pointer)
 {
-	BinaryTreeNode *temppointer;											//ÓÃÓÚ±£´æÌæ»»±»É¾³ý½ÚµãµÄ½Úµã
-	BinaryTreeNode *tempparent = NULL;										//ÓÃÓÚ±£´æÌæ»»½ÚµãµÄ¸¸½Úµã
+	BinaryTreeNode_t *temppointer;											//ÓÃÓÚ±£´æÌæ»»±»É¾³ý½ÚµãµÄ½Úµã
+	BinaryTreeNode_t *tempparent = NULL;									//ÓÃÓÚ±£´æÌæ»»½ÚµãµÄ¸¸½Úµã
 	if(pointer == NULL)														//´ýÉ¾³ý½Úµã²»´æÔÚ
 	{
 		printf("½Úµã²»´æÔÚ£¡\r\n");
@@ -203,7 +203,7 @@ void BinarySearchTree_DeleteNode(BinaryTreeNode *pointer)
 /* ·ÃÎÊµ±Ç°½ÚµãÄÚÈÝ                                                     */
 /* cunrrentnode:µ±Ç°½Úµã
 /************************************************************************/
-void visit(BinaryTreeNode *currentnode)
+void visit(BinaryTreeNode_t *currentnode)
 {
 	printf("%d ",currentnode->val.val);
 }
@@ -211,7 +211,7 @@ void visit(BinaryTreeNode *currentnode)
 /* ÅÐ¿Õ¶þ²æÊ÷                                                           */
 /* root:¶þ²æÊ÷¸ù½Úµã
 /************************************************************************/
-bool isEmpty_BinaryTree(BinaryTreeNode *root)
+bool isEmpty_BinaryTree(BinaryTreeNode_t *root)
 {
 	if(root != NULL)
 		return FALSE;
@@ -222,7 +222,7 @@ bool isEmpty_BinaryTree(BinaryTreeNode *root)
 /************************************************************************/
 /* Ç°ÐòÖÜÓÎ¶þ²æÊ÷                                                       */
 /************************************************************************/
-void PreOrder(BinaryTreeNode *root)
+void PreOrder(BinaryTreeNode_t *root)
 {
 	if(root != NULL)
 	{
@@ -234,7 +234,7 @@ void PreOrder(BinaryTreeNode *root)
 /************************************************************************/
 /* ÖÐÐòÖÜÓÎ¶þ²æÊ÷                                                       */
 /************************************************************************/
-void InOrder(BinaryTreeNode *root)
+void InOrder(BinaryTreeNode_t *root)
 {
 	if(root != NULL)
 	{
@@ -246,7 +246,7 @@ void InOrder(BinaryTreeNode *root)
 /************************************************************************/
 /* ºóÐòÖÜÓÎ¶þ²æÊ÷                                                       */
 /************************************************************************/
-void PostOrder(BinaryTreeNode *root)
+void PostOrder(BinaryTreeNode_t *root)
 {
 	if(root != NULL)
 	{
@@ -262,7 +262,7 @@ void PostOrder(BinaryTreeNode *root)
 /*Á´±í½Úµã½á¹¹Ìå*/
 typedef struct LinkNode_BinaryTree
 {
-	BinaryTreeNode *node;						//¶þ²æÊ÷½ÚµãÖ¸Õë
+	BinaryTreeNode_t *node;						//¶þ²æÊ÷½ÚµãÖ¸Õë
 	struct LinkNode_BinaryTree* next;
 }LinkNode_BinaryTree;
 
@@ -287,7 +287,7 @@ static void CreateLinkStack_BinaryTree(LinkStack_BinaryTree *s)
 /* s£º¶þ²æÊ÷Á´Ê½Õ»Ê×µØÖ·
 /* node: Òª²åÈëµÄ¶þ²æÊ÷½Úµã
 /************************************************************************/
-static void LSpush_BinaryTree(LinkStack_BinaryTree *s,BinaryTreeNode *node)//ÏòÁ´Ê×²åÈë½Úµã£¬×÷ÎªºóÈë½Úµã
+static void LSpush_BinaryTree(LinkStack_BinaryTree *s,BinaryTreeNode_t *node)//ÏòÁ´Ê×²åÈë½Úµã£¬×÷ÎªºóÈë½Úµã
 {
 	LinkNode_BinaryTree *temp = (LinkNode_BinaryTree *)malloc(sizeof(LinkNode_BinaryTree));//¿ª±Ù¿Õ¼ä,´óÐ¡ÎªLinkNode_BinaryTree
 	if(s->top == NULL)				//µÚÒ»¸öÑ¹Õ»µÄÔªËØ
@@ -309,9 +309,9 @@ static void LSpush_BinaryTree(LinkStack_BinaryTree *s,BinaryTreeNode *node)//ÏòÁ
 /* s£º¶þ²æÊ÷Á´Ê½Õ»Ê×µØÖ·
 /* ·µ»Ø£ºÕ»¶¥µÄ¶þ²æÊ÷½ÚµãµØÖ·
 /************************************************************************/
-static BinaryTreeNode *LSpop_BinaryTree(LinkStack_BinaryTree *s)
+static BinaryTreeNode_t *LSpop_BinaryTree(LinkStack_BinaryTree *s)
 {
-	BinaryTreeNode *temp=NULL;				//¶þ²æÊ÷½ÚµãÖ¸Õë
+	BinaryTreeNode_t *temp=NULL;				//¶þ²æÊ÷½ÚµãÖ¸Õë
 	LinkNode_BinaryTree *tempNode=NULL;		//ÁÙÊ±Õ»½Úµã
 	if(s->top != NULL)						//Õ»·Ç¿Õ
 	{
@@ -367,12 +367,12 @@ static void LSclear_Binary(LinkStack_BinaryTree *s)
 /************************************************************************/
 /* Ç°ÐòÖÜÓÎ¶þ²æÊ÷,·ÇµÝ¹é·½·¨                                            */
 /************************************************************************/
-void PreOrderWithoutRecursion(BinaryTreeNode *root)
+void PreOrderWithoutRecursion(BinaryTreeNode_t *root)
 {
-	BinaryTreeNode *pointer = root;
+	BinaryTreeNode_t *pointer = root;
 	LinkStack_BinaryTree temp;									//¶¨ÒåÕ»±äÁ¿
 	CreateLinkStack_BinaryTree(&temp);							//´´½¨Õ»
-	LSpush_BinaryTree(&temp,(BinaryTreeNode *)NULL);			//Õ»µ×¼àÊÓÉÚ
+	LSpush_BinaryTree(&temp,(BinaryTreeNode_t *)NULL);			//Õ»µ×¼àÊÓÉÚ
 
 	while(pointer || !isStackEmpty_BinaryTree(&temp))			//Õ»·Ç¿Õ
 	{
@@ -388,12 +388,12 @@ void PreOrderWithoutRecursion(BinaryTreeNode *root)
 /************************************************************************/
 /* ÖÐÐòÖÜÓÎ¶þ²æÊ÷,·ÇµÝ¹é·½·¨                                            */
 /************************************************************************/
-void InOrderWithoutRecursion(BinaryTreeNode *root)
+void InOrderWithoutRecursion(BinaryTreeNode_t *root)
 {
-	BinaryTreeNode *pointer = root;
+	BinaryTreeNode_t *pointer = root;
 	LinkStack_BinaryTree temp;									//¶¨ÒåÕ»±äÁ¿
 	CreateLinkStack_BinaryTree(&temp);							//´´½¨Õ»
-//	LSpush_BinaryTree(&temp,(BinaryTreeNode *)NULL);			//Õ»µ×¼àÊÓÉÚ
+//	LSpush_BinaryTree(&temp,(BinaryTreeNode_t *)NULL);			//Õ»µ×¼àÊÓÉÚ
 
 	while(pointer || !isStackEmpty_BinaryTree(&temp))			//Õ»·Ç¿Õ
 	{
@@ -413,12 +413,12 @@ void InOrderWithoutRecursion(BinaryTreeNode *root)
 /************************************************************************/
 /* ºóÐòÖÜÓÎ¶þ²æÊ÷,·ÇµÝ¹é·½·¨                                            */
 /************************************************************************/
-void PostOrderWithoutRecursion(BinaryTreeNode *root)
+void PostOrderWithoutRecursion(BinaryTreeNode_t *root)
 {
-	BinaryTreeNode *pointer = root;
+	BinaryTreeNode_t *pointer = root;
 	LinkStack_BinaryTree temp;								//¶¨ÒåÕ»±äÁ¿
 	CreateLinkStack_BinaryTree(&temp);						//´´½¨Õ»
-//	LSpush_BinaryTree(&temp,(BinaryTreeNode *)NULL);		//Õ»µ×¼àÊÓÉÚ
+//	LSpush_BinaryTree(&temp,(BinaryTreeNode_t *)NULL);		//Õ»µ×¼àÊÓÉÚ
 	
 	if(root == NULL)										//¿ÕÊ÷Ôò·µ»Ø
 		return;
@@ -452,7 +452,7 @@ void PostOrderWithoutRecursion(BinaryTreeNode *root)
 /********************************¹ã¶ÈÖÜÓÎ¶þ²æÊ÷*************************************/
 typedef struct QueueNode
 {
-	BinaryTreeNode *node;
+	BinaryTreeNode_t *node;
 	struct QueueNode *next;
 }QueueNode;
 typedef struct  Queue_BinaryTree
@@ -472,7 +472,7 @@ static void CreateQueue_BinrayTree(Queue_BinaryTree *q)
 }
 
 //½ø¶ÓÁÐ
-static void enQueue_BinaryTree(Queue_BinaryTree *q,BinaryTreeNode *node)
+static void enQueue_BinaryTree(Queue_BinaryTree *q,BinaryTreeNode_t *node)
 {
 	QueueNode *temp = (QueueNode *)malloc(sizeof(QueueNode));				//¿ª±Ù¿Õ¼ä
 	temp->node = node;														//¸³Öµ
@@ -491,10 +491,10 @@ static void enQueue_BinaryTree(Queue_BinaryTree *q,BinaryTreeNode *node)
 }
 
 //³ö¶ÓÁÐ
-static BinaryTreeNode * deQueue_BinaryTree(Queue_BinaryTree *q)
+static BinaryTreeNode_t * deQueue_BinaryTree(Queue_BinaryTree *q)
 {
 	QueueNode *temp=NULL;													//ÁÙÊ±¶ÓÁÐ½Úµã±äÁ¿
-	BinaryTreeNode *node=NULL;
+	BinaryTreeNode_t *node=NULL;
 	if(q->front == NULL || 0 == q->size )
 	{
 		printf("¶ÓÁÐÎª¿Õ\r\n");
@@ -521,9 +521,9 @@ static bool isQueueEmpty_BinaryTree(Queue_BinaryTree *q)
 /************************************************************************/
 /* ¹ã¶ÈÖÜÓÎ¶þ²æÊ÷                                                       */
 /************************************************************************/
-void LevelOrder(BinaryTreeNode *root)
+void LevelOrder(BinaryTreeNode_t *root)
 {
-	BinaryTreeNode *pointer = root;
+	BinaryTreeNode_t *pointer = root;
 	Queue_BinaryTree queue;
 	CreateQueue_BinrayTree(&queue);											//´´½¨¶ÓÁÐ
 
@@ -547,15 +547,15 @@ void LevelOrder(BinaryTreeNode *root)
 void testBinaryTree(void)
 {
 	unsigned char i=0;
-	BinaryTreeNode *root;//¶¨ÒåÒ»¸ö¶þ²æÊ÷¸ù½Úµã
-	BinaryTreeNode *temp;//ÁÙÊ±½Úµã
-	ValueType val[10] = {{0,Left},{10,Left},{20,Left},{30,Left},{40,Left},    {35,Left},{25,Left},{15,Left},{5,Left},{66,Left}};
-	ValueType testvalue = {3,Left};
+	BinaryTreeNode_t *root;//¶¨ÒåÒ»¸ö¶þ²æÊ÷¸ù½Úµã
+	BinaryTreeNode_t *temp;//ÁÙÊ±½Úµã
+	ValueType_t val[10] = {{0,Left},{10,Left},{20,Left},{30,Left},{40,Left},    {35,Left},{25,Left},{15,Left},{5,Left},{66,Left}};
+	ValueType_t testvalue = {3,Left};
 	root = CreateBinaryTree(NULL,NULL,NULL,val[2]);//´´½¨¶þ²æÊ÷
 
 	for(i = 0;i<10;i++)//²åÈë10¸ö½Úµã£¬°´ÕÕ¶þ²æËÑË÷Ê÷µÄÐÎÊ½ÅÅÁÐ´óÐ¡
 	{
-		temp = (BinaryTreeNode*)malloc(sizeof(BinaryTreeNode));
+		temp = (BinaryTreeNode_t*)malloc(sizeof(BinaryTreeNode_t));
 		temp->left = NULL;
 		temp->right = NULL;
 		temp->val = val[i];
