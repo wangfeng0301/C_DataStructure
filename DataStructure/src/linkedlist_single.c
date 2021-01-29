@@ -9,44 +9,48 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <malloc.h>
+#include <string.h>
 #include "linkedlist_single.h"
 
 /************************************************************************
- *功能：创建链表
- *输入：n 链表节点个数，不包含首节点
+ *功能：创建链表，通用，不随数据类型改变而改变
+ *输入：list:链表起始地址
+ *		n：链表节点个数，不包含首节点
  *		dat:要传入的数据元素指针，若n=0,改参数可传NULL
+ *		datlen:数据类型的长度
  *输出：无
- *返回：链表首地址
+ *返回：TRUE or FALSE
 ************************************************************************/
-LinkNode_t *CreatLinkList(int n, Data_t *dat)
+bool Link_Create(LinkList_t *list, uint n, void *dat, uint datlen)
 {
-	int i;
-	LinkNode_t *pHead,*pNode,*pTail;//定义首结点，普通节点，尾节点
-	pHead = (LinkNode_t *)malloc(sizeof(LinkNode_t));//为头结点分配内存空间，头结点不放数据，指向首节点（第一个节点）
-	if(pHead == NULL)//判断是否分配内存成功
+	uint i;
+	LinkNode_t *pHead,*pNode,*pTail;						//定义首结点，普通节点，尾节点
+	//pHead = (LinkNode_t *)malloc(sizeof(LinkNode_t));//为头结点分配内存空间，头结点不放数据，指向首节点（第一个节点）
+	pHead = list->node;										//头结点由外部传入
+	if(pHead == NULL)										//判断是否分配内存成功
 	{
 		printf("空间分配失败");
-		exit(-1);
+		return FALSE;
 	}
-	pTail = pHead;//尾节点初始指向首结点
+	pTail = pHead;											//尾节点初始指向首结点
 
 	for(i=0;i<n;i++)
 	{
-		pNode = (LinkNode_t*)malloc(sizeof(LinkNode_t));//为普通节点分配内存
-		if(pNode == NULL)//判断是否分配内存成功
+		pNode = (LinkNode_t *)malloc(sizeof(LinkNode_t));	//为普通节点分配节点结构体内存
+		pNode->data = (void *)malloc(datlen);				//为普通节点分配数据内存
+		if(pNode == NULL || pNode->data == NULL)			//判断是否分配内存成功
 		{
 			printf("空间分配失败");
-			exit(-1);
+			return FALSE;
 		}
-		//printf("请输入第%d个节点数据：",i);
-		//scanf("%d",&(pNode->Element));//给节点元素赋值
-		pNode->data = dat[i];
-		pTail->next = pNode;//尾节点指向新的节点，同时尾节点的前一个节点也指向了pNode
-		pTail = pNode;//新节点赋值给尾节点,新节点就变成了尾节点
+		memcpy(pNode->data, (void *)((uint)dat+i*datlen), datlen);//赋值
+		//pNode->data = dat[i];
+		pTail->next = pNode;								//尾节点指向新的节点，同时尾节点的前一个节点也指向了pNode
+		pTail = pNode;										//新节点赋值给尾节点,新节点就变成了尾节点
 	}
-	pTail->next = NULL;//尾节点指向NULL,结束创建
-
-	return pHead;//返回头节点地址
+	pTail->next = NULL;										//尾节点指向NULL,结束创建
+	list->datlen = datlen;									//指定数据类型长度
+	return TRUE;
 }
 
 /************************************************************************
@@ -57,11 +61,12 @@ LinkNode_t *CreatLinkList(int n, Data_t *dat)
  *输出：无
  *返回：无
 ************************************************************************/
-void ChangeNodeValue(LinkNode_t * list,int n,Data_t dat)
+bool Link_ChangeNodeValue(LinkList_t * list,int n, void *dat)
 {
-	LinkNode_t *t = list->next;
-	int i=0;
-	while(i<n && t!=NULL)//找到第n个节点
+	LinkNode_t *t = list->node->next;
+	int i = 0;
+
+	while(i < n && t != NULL)								//找到第n个节点
 	{
 		t = t->next;
 		i++;
@@ -69,13 +74,14 @@ void ChangeNodeValue(LinkNode_t * list,int n,Data_t dat)
 	if(t != NULL)
 	{
 		printf("修改节点%d的值：",n);
-		//printf("输入要修改的节点%d值：",n);
-		//scanf("%d",&t->Element);
-		t->data = dat;
+		//t->data = dat;
+		memcpy(t->data,dat,list->datlen);
+		return TRUE;
 	}
 	else
 	{
 		printf("节点不存在！");
+		return FALSE;
 	}
 }
 
@@ -85,23 +91,26 @@ void ChangeNodeValue(LinkNode_t * list,int n,Data_t dat)
  *输出：无
  *返回：无
 ************************************************************************/
-void TraverseList(LinkNode_t *list)
+bool Link_Traverse(LinkList_t *list)
 {
-	LinkNode_t *p = list->next;
+	LinkNode_t *p = list->node->next;
+	uchar temp[8];
+
 	printf("遍历链表：\r\n");
 	if(p == NULL)
 	{
 		printf("链表为空\r\n");
-		return;
+		return FALSE;
 	}
 	while(p != NULL)
 	{
-		/* 若结构体Data_t中改变元素，此处需要相应修改 */
-		printf("%d\r\n",p->data.element);//打印节点数据
+		memcpy(temp,p->data,list->datlen);
+		printf("%d\r\n",*temp);//打印节点数据
 		p = p->next;//指向下一个节点
 	}
+	return TRUE;
 }
-
+#if 0
 /************************************************************************
  *功能：在第n个节点前插入节点，节点从0开始算，只算普通节点
  *输入：list:链表地址
@@ -220,16 +229,17 @@ void ReverseLinkList(LinkNode_t *list)
 		currNode = nextNode;
 	}
 }
-
+#endif
 void testLink(void)
 {
-	Data_t age[3] = {10,11,12};
-	Data_t dat;
+	int age[3] = {10,11,12};
+	int dat;
+	LinkList_t student;//定义一个链表
+
+	if(Link_Create(&student, 3, age, sizeof(age[0])))//创建3个节点的链表,不包括首节点
+		Link_Traverse(&student);//遍历链表
 	
-	LinkNode_t *student = CreatLinkList(sizeof(age)/sizeof(age[0]),age);//创建3个节点的链表,不包括首节点
-	TraverseList(student);//遍历链表
-	
-	dat.element = 1;
+	/*dat.element = 1;
 	InsertNode(student,3,dat);//在第n个节点前插入新节点
 	TraverseList(student);//遍历链表
 
@@ -248,5 +258,5 @@ void testLink(void)
 	TraverseList(student);//遍历链表
 	
 	DeleteLinkList(student);//删除链表
-	TraverseList(student);//遍历链表
+	TraverseList(student);//遍历链表*/
 }
