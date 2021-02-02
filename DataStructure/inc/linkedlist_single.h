@@ -19,7 +19,7 @@ bool Link_Traverse(LinkList_t *list);//遍历链表
 bool Link_InsertNode(LinkList_t *list,int n, void *dat);//在第n个节点前插入新节点
 bool Link_ChangeNodeValue(LinkList_t * list,int n, void *dat);//修改第n个节点的值
 bool Link_DeleteNode(LinkList_t *list,int n);//删除第n个节点
-bool Link_Delete(LinkList_t *list);//删除链表
+bool Link_Destroy(LinkList_t *list);//销毁链表
 bool Link_Reverse(LinkList_t *list);//翻转链表
 bool testLink(void);
 

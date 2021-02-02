@@ -14,7 +14,7 @@ typedef struct
 }ValueType_t;
 typedef struct BinaryTreeNode
 {		
-	ValueType_t val;					//数据	
+	ValueType_t val;				//数据	
 	struct BinaryTreeNode *left;	//左子节点指针
 	struct BinaryTreeNode *right;	//右子节点指针
 	struct BinaryTreeNode *parent;	//指向父节点指针

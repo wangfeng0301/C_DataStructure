@@ -458,7 +458,7 @@ char *Mystrstr(const char *haystack, const char *needle)
 	int len,len2;
 	if(!(len=strlen(needle)))//needle长度为0，表示needle字符串为空
 		return(char*)haystack;
-	len2 = strlen(haystack);//去字符串haystack长度
+	len2 = strlen(haystack);//取字符串haystack长度
 	for(;*haystack;++haystack)
 	{
 		if(len2 >= len)//若haystack剩余长度小于needle长度，则needle必然不是haystack子串
@@ -544,17 +544,60 @@ int Myatoi(char *str)
 	return temp;
 }
 
-//计算字符串特征向量
+/************************************************************************
+ *功能：暴力匹配字符串
+ *输入：T:主串。
+ *		P:子串
+ *输出：无
+ *返回：子串在主串中的起始位置。若不存在，返回-1
+************************************************************************/
+int ViolentMatch(char* T, char* P)
+{
+	int tLen = strlen(T);
+	int pLen = strlen(P);
+	int i = 0;//主串索引
+	int j = 0;//子串索引
+
+	while(i < tLen && j < pLen)
+	{
+		if(T[i] == P[j])
+		{
+			/*1.如果当前字符匹配成功（即T[i] == P[j]），则i++，j++ */
+			/*继续比较下一个字符，直到子串结束*/
+			i++;
+			j++;
+		}
+		else
+		{
+			/*2.如果失配（即T[i]! = P[j]），令j = 0,即子串回溯到最开始 */
+			/*令i = i - (j - 1)，即主串向右移动1位 */
+			i = i - j + 1;
+			j = 0;
+		}
+	}
+	/*匹配成功，返回子串P在主串T中的位置，否则返回-1 */
+	if(j == pLen)
+		return i - j;
+	else
+		return -1;
+}
+/************************************************************************
+ *功能：使用KMP算法时，计算字符串特征向量
+ *输入：P:要被计算的字符串。
+ *输出：无
+ *返回：next指针
+ *详解：
+************************************************************************/
 static int *findNext(char *P)
 {
 	int i=0;
 	int k=-1;
-	int m=Mystrlen(P);//字符串P长度
+	int m=strlen(P);//字符串P长度
 	int *next = (int *)malloc(m*sizeof(int));//开辟m个int大小空间
 	if(m==0)//字符长度为0，退出
-		return;
+		return 0;
 	if(next == NULL)//开辟空间失败
-		return;
+		return -1;
 	next[0] = -1;
 	while(i<m)
 	{
@@ -615,7 +658,7 @@ void testString(void)
 	char str2[]="Thanks";
 	char str3[]="abcdaabcab";
 	int *next = findNext(str3);
-	char str4[]="-1234a56";
+	char str4[]="-123456";
 	char ch = 'c';
 	int ret,i;
 	char *retchar;
@@ -797,7 +840,8 @@ void testString(void)
 	strcpy(str2,"hello");
 	printf("str1:%s\r\n",str1);
 	printf("str2:%s\r\n",str2);
-	ret = KmpSearch(str1,str2);
+	//ret = KmpSearch(str1,str2);
+	ret = ViolentMatch(str1,str2);
 	printf("str2在str1中的位置：%d\r\n",ret);
 	for(i = 0;i<strlen(str2);i++)
 		printf("%c",*(str1+ret+i));
