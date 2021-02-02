@@ -1,6 +1,6 @@
 #ifndef __APPLICATION_H__
 #define __APPLICATION_H__
-#include <stdio.h>
+#include "type.h"
 
 void josephus(unsigned int n,unsigned int s,unsigned int m);
 
@@ -9,5 +9,5 @@ long factorial_iteration(long n);//n的阶乘，迭代方式
 unsigned char knap_recursion(int s,int n,int* w);//背包问题，递归方式
 unsigned char nonRecKnap(int s,int n,int* w);//背包问题，非递归方式
 unsigned char nonRecknapOpt(int s,int n, int* w);//背包问题，优化非递归方式
-void testRecursion();
+void testRecursion(void);
 #endif

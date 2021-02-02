@@ -18,6 +18,38 @@
 #include "linkedlist_double.h"
 
 /************************************************************************
+ *功能：判断链表是否存在
+ *输入：list:链表起始地址
+ *输出：无
+ *返回：TRUE or FALSE
+************************************************************************/
+bool DoubleLink_IsExist(DoubleLinkList_t *list)
+{
+	if(list->node == NULL)
+	{
+		printf("链表不存在\r\n");
+		return FALSE;
+	}
+	return TRUE;
+}
+/************************************************************************
+ *功能：判断链表是否为空
+ *输入：list:链表起始地址
+ *输出：无
+ *返回：TRUE or FALSE
+************************************************************************/
+bool DoubleLink_IsEmpty(DoubleLinkList_t *list)
+{
+	if(DoubleLink_IsExist(list))
+	{
+		if(list->node->next != NULL)
+			return TRUE;
+		else
+			printf("链表为空\r\n");
+	}
+	return FALSE;
+}
+/************************************************************************
  *功能：创建链表
  *输入：list:链表起始地址
  *		n 链表节点个数，不包含首节点
@@ -69,21 +101,13 @@ bool DoubleLink_Create(DoubleLinkList_t *list, unsigned int n, void *dat, unsign
 ************************************************************************/
 bool DoubleLink_Traverse(DoubleLinkList_t *list)
 {
-	DoubleLinkNode_t *p = list->node;								//临时节点指向首节点
+	DoubleLinkNode_t *p;
 	uchar temp[32];
 
 	printf("遍历链表：\r\n");
-	if(p == NULL)
-	{
-		printf("链表不存在\r\n");
+	if(!DoubleLink_IsEmpty(list))
 		return FALSE;
-	}
-	p = p->next;
-	if(p == NULL)
-	{
-		printf("链表为空\r\n");
-		return FALSE;
-	}
+	p = list->node->next;											//临时节点指向第1个普通节点
 	while(p != NULL)
 	{
 		memcpy(temp,p->data,list->datlen);
@@ -104,13 +128,11 @@ bool DoubleLink_Traverse(DoubleLinkList_t *list)
 bool DoubleLink_ChangeNodeValue(DoubleLinkList_t *list, unsigned int n, void *dat)
 {
 	unsigned int i = n;
-	DoubleLinkNode_t* temp = list->node->next;						//临时节点指向第一个有数据节点
+	DoubleLinkNode_t *temp;
 
-	if(temp == NULL)
-	{
-		printf("链表为空！\r\n");
+	if(!DoubleLink_IsEmpty(list))
 		return FALSE;
-	}	
+	temp = list->node->next;										//临时节点指向第一个有数据节点
 	while(temp != NULL && i--)
 	{
 		temp = temp->next;											//指向下一个节点，直到到指定节点
@@ -141,8 +163,10 @@ bool DoubleLink_InsertNode(DoubleLinkList_t *list, unsigned int n, void *dat)
 	unsigned int i=n;
 	DoubleLinkNode_t *temp,*pNewNode;								//临时节点
 
-	temp = list->node;												//临时节点指向首节点
 	printf("在节点%d前插入新节点\r\n",n);
+	if(!DoubleLink_IsEmpty(list))
+		return FALSE;
+	temp = list->node;												//临时节点指向首节点
 	while(temp != NULL && i--)
 	{
 		temp = temp->next;											//指向下一个节点，直到指向指定节点
@@ -175,6 +199,37 @@ bool DoubleLink_InsertNode(DoubleLinkList_t *list, unsigned int n, void *dat)
 	}
 }
 /************************************************************************
+ *功能：获取第n个节点的数据，节点从0开始算，只算普通节点
+ *输入：lsit:链表地址
+ *		n:第n个节点
+ *输出：dat:获取的数据
+ *返回：TRUE or FALSE
+************************************************************************/
+bool DoubleLink_GetNodeValue(DoubleLinkList_t *list, unsigned int n, void *dat)
+{
+	unsigned int i=n;
+	DoubleLinkNode_t *temp;											//临时节点
+											
+	printf("获取节点%d的数据\r\n",n);
+	if(!DoubleLink_IsEmpty(list))
+		return FALSE;
+	temp = list->node->next;										//临时节点指向第一个普通节点
+	while(temp != NULL && i--)
+	{
+		temp = temp->next;											//指向下一个节点，直到指向指定节点
+	}
+	if(temp != NULL)
+	{
+		memcpy(dat, temp->data,list->datlen);
+		return TRUE;
+	}
+	else
+	{
+		printf("该节点不存在！\r\n");
+		return FALSE;
+	}
+}
+/************************************************************************
  *功能：删除第n个节点，n从0开始算，只算普通节点
  *输入：list:链表地址
 		n:第n个节点,从0开始算
@@ -186,13 +241,10 @@ bool DoubleLink_DeleteNode(DoubleLinkList_t *list, unsigned int n)
 	unsigned int i=n;
 	DoubleLinkNode_t* temp,*pDeleteNode;							//临时节点
 
-	temp = list->node;												//临时节点指向首节点
 	printf("删除节点%d\r\n",n);
-	if(temp->next == NULL)
-	{
-		printf("链表为空！\r\n");
+	if(!DoubleLink_IsEmpty(list))
 		return FALSE;
-	}
+	temp = list->node;												//临时节点指向首节点
 	while(temp!=NULL && i--)
 	{
 		temp = temp->next;											//指向下一个节点，直到指向指定节点
@@ -229,13 +281,10 @@ bool DoubleLink_Clear(DoubleLinkList_t *list)
 {
 	DoubleLinkNode_t *temp,*p;										//临时节点
 
+	if(!DoubleLink_IsExist(list))
+		return FALSE;
 	temp = list->node->next;										//临时节点指向首节点
 	list->node->next = NULL;										//首节点指向空指针
-	if(temp == NULL)
-	{
-		printf("链表为空！\r\n");
-		return FALSE;
-	}
 	while(temp != NULL)
 	{
 		p = temp->next;												//当前节点后继赋值给p
@@ -265,14 +314,11 @@ bool DoubleLink_Destroy(DoubleLinkList_t *list)
 {
 	DoubleLinkNode_t *temp,*p;										//临时节点
 
+	if(!DoubleLink_IsExist(list))
+		return FALSE;
 	temp = list->node;												//临时节点指向首节点
 	list->datlen = 0;												//链表数据长度清零
 	list->node = NULL;												//首节点指向空指针
-	if(temp == NULL)
-	{
-		printf("链表为空！\r\n");
-		return FALSE;
-	}
 	while(temp != NULL)
 	{
 		p = temp->next;												//当前节点后继赋值给p
@@ -293,7 +339,38 @@ bool DoubleLink_Destroy(DoubleLinkList_t *list)
 }
 
 /***************************************循环链表***********************************************************/
-
+/************************************************************************
+ *功能：判断链表是否存在
+ *输入：list:链表起始地址
+ *输出：无
+ *返回：TRUE or FALSE
+************************************************************************/
+bool CycDoubleLink_IsExist(DoubleLinkList_t *list)
+{
+	if(list->node == NULL)
+	{
+		printf("链表不存在\r\n");
+		return FALSE;
+	}
+	return TRUE;
+}
+/************************************************************************
+ *功能：判断链表是否为空
+ *输入：list:链表起始地址
+ *输出：无
+ *返回：TRUE or FALSE
+************************************************************************/
+bool CycDoubleLink_IsEmpty(DoubleLinkList_t *list)
+{
+	if(DoubleLink_IsExist(list))
+	{
+		if(list->node->next != list->node)
+			return TRUE;
+		else
+			printf("链表为空\r\n");
+	}
+	return FALSE;
+}
 /************************************************************************
  *功能：创建链表
  *输入：list:链表地址
@@ -349,17 +426,9 @@ bool CycDoubleLink_Traverse(DoubleLinkList_t *list)
 	uchar temp[32];
 
 	printf("遍历链表：\r\n");
-	if(list->node == NULL)
-	{
-		printf("链表不存在\r\n");
+	if(!CycDoubleLink_IsEmpty(list))
 		return FALSE;
-	}
 	p = list->node->next;											//首节点没有数据，所以临时节点指向第一个普通节点
-	if(p == list->node || p == NULL)
-	{
-		printf("链表为空\r\n");
-		return FALSE;
-	}
 	while(p != list->node)
 	{
 		memcpy(temp,p->data,list->datlen);
@@ -380,18 +449,11 @@ bool CycDoubleLink_Traverse(DoubleLinkList_t *list)
 bool CycDoubleLink_ChangeNodeValue(DoubleLinkList_t * list,unsigned int n, void *dat)
 {
 	unsigned int i = n;
-	DoubleLinkNode_t* temp = list->node->next;						//临时节点指向第一个有数据节点
+	DoubleLinkNode_t* temp;
 
-	if(list->node == NULL)
-	{
-		printf("链表不存在\r\n");
+	if(!CycDoubleLink_IsEmpty(list))
 		return FALSE;
-	}
-	if(temp == list->node || temp == NULL)
-	{
-		printf("链表为空\r\n");
-		return FALSE;
-	}
+	temp = list->node->next;										//临时节点指向第一个有数据节点
 	while(i--)														//循环链表，可以循环查询。如链表长度为3，输入4，指定到节点0
 	{
 		temp = temp->next;											//指向下一个节点，直到到指定节点
@@ -427,18 +489,10 @@ bool CycDoubleLink_InsertNode(DoubleLinkList_t *list,unsigned int n, void *dat)
 	unsigned int i = n;
 	DoubleLinkNode_t *temp, *pNewNode;								//临时节点
 
-	temp = list->node;												//临时节点指向首节点
 	printf("在节点%d之前插入新节点\r\n",n);
-	if(list->node == NULL)
-	{
-		printf("链表不存在\r\n");
+	if(!CycDoubleLink_IsEmpty(list))
 		return FALSE;
-	}
-	if(temp->next == list->node || temp->next == NULL)
-	{
-		printf("链表为空\r\n");
-		return FALSE;
-	}
+	temp = list->node;												//临时节点指向首节点
 	while(i--)														//循环链表，可以循环查询。如链表长度为3，输入4，指定到节点0
 	{
 		temp = temp->next;											//指向下一个节点，直到指向指定节点
@@ -483,13 +537,10 @@ bool CycDoubleLink_AddNode(DoubleLinkList_t *list, void *dat)
 {
 	DoubleLinkNode_t *temp,*pNewNode;								//临时节点
 
-	temp = list->node;												//临时节点指向首节点	
 	printf("在表尾插入新节点\r\n");
-	if(list->node == NULL)
-	{
-		printf("链表不存在\r\n");
+	if(!CycDoubleLink_IsExist(list))
 		return FALSE;
-	}
+	temp = list->node;												//临时节点指向首节点	
 	pNewNode = (DoubleLinkNode_t*)malloc(sizeof(DoubleLinkNode_t));	//为新节点分配内存
 	pNewNode->data = (void *)malloc(list->datlen);					//为普通节点分配数据内存
 	if(pNewNode == NULL)
@@ -507,6 +558,38 @@ bool CycDoubleLink_AddNode(DoubleLinkList_t *list, void *dat)
 }
 
 /************************************************************************
+ *功能：获取第n个节点的数据，节点从0开始算，只算普通节点
+ *输入：lsit:链表地址
+ *		n:第n个节点
+ *输出：dat:获取的数据
+ *返回：TRUE or FALSE
+************************************************************************/
+bool CycDoubleLink_GetNodeValue(DoubleLinkList_t *list, unsigned int n, void *dat)
+{
+	unsigned int i=n;
+	DoubleLinkNode_t *temp;											//临时节点
+											
+	printf("获取节点%d的数据\r\n",n);
+	if(!CycDoubleLink_IsEmpty(list))
+		return FALSE;
+	temp = list->node->next;										//临时节点指向第一个普通节点
+	while(temp != NULL && i--)
+	{
+		temp = temp->next;											//指向下一个节点，直到指向指定节点
+	}
+	if(temp != NULL)
+	{
+		memcpy(dat, temp->data,list->datlen);
+		return TRUE;
+	}
+	else
+	{
+		printf("该节点不存在！\r\n");
+		return FALSE;
+	}
+}
+
+/************************************************************************
  *功能：删除第n个节点，n从0开始算，只算普通节点
  *输入：list:链表地址
 		n:第n个节点,从0开始算
@@ -518,18 +601,10 @@ bool CycDoubleLink_DeleteNode(DoubleLinkList_t *list,unsigned int n)
 	unsigned int i=n;
 	DoubleLinkNode_t* temp,*pDeleteNode;							//临时节点
 
-	temp = list->node;												//临时节点指向首节点
 	printf("删除节点%d\r\n",n);
-	if(list->node == NULL)
-	{
-		printf("链表不存在\r\n");
+	if(!CycDoubleLink_IsEmpty(list))
 		return FALSE;
-	}
-	if(temp->next == list->node || temp->next == NULL)
-	{
-		printf("链表为空\r\n");
-		return FALSE;
-	}
+	temp = list->node;												//临时节点指向首节点
 	while(temp->next != list->node && i--)
 	{
 		temp = temp->next;											//指向下一个节点，直到指向指定节点
@@ -563,17 +638,9 @@ bool CycDoubleLink_Clear(DoubleLinkList_t *list)
 {
 	DoubleLinkNode_t *temp,*p;										//临时节点
 
+	if(!CycDoubleLink_IsEmpty(list))
+		return FALSE;
 	temp = list->node->next;										//临时节点指向第一个普通节点
-	if(list->node == NULL)
-	{
-		printf("链表不存在\r\n");
-		return FALSE;
-	}
-	if(temp == list->node || temp == NULL)
-	{
-		printf("链表为空\r\n");
-		return FALSE;
-	}
 	while(temp != list->node)
 	{
 		p = temp->next;												//当前节点后继赋值给p
@@ -610,12 +677,9 @@ bool CycDoubleLink_Destroy(DoubleLinkList_t *list)
 {
 	DoubleLinkNode_t *temp,*p;										//临时节点
 
-	temp = list->node;												//临时节点指向首节点
-	if(temp == NULL)
-	{
-		printf("链表不存在\r\n");
+	if(!CycDoubleLink_IsExist(list))
 		return FALSE;
-	}
+	temp = list->node;												//临时节点指向首节点
 	while(temp != list->node)
 	{
 		p = temp->next;												//当前节点后继赋值给p

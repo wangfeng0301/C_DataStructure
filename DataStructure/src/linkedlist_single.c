@@ -17,6 +17,38 @@
 #include "linkedlist_single.h"
 
 /************************************************************************
+ *功能：判断链表是否存在
+ *输入：list:链表起始地址
+ *输出：无
+ *返回：TRUE or FALSE
+************************************************************************/
+bool Link_IsExist(LinkList_t *list)
+{
+	if(list->node == NULL)
+	{
+		printf("链表不存在\r\n");
+		return FALSE;
+	}
+	return TRUE;
+}
+/************************************************************************
+ *功能：判断链表是否为空
+ *输入：list:链表起始地址
+ *输出：无
+ *返回：TRUE or FALSE
+************************************************************************/
+bool Link_IsEmpty(LinkList_t *list)
+{
+	if(Link_IsExist(list))
+	{
+		if(list->node->next != NULL)
+			return TRUE;
+		else
+			printf("链表为空\r\n");
+	}
+	return FALSE;
+}
+/************************************************************************
  *功能：创建链表，通用，不随数据类型改变而改变
  *输入：list:链表起始地址
  *		n：链表节点个数，不包含首节点
@@ -68,9 +100,12 @@ bool Link_Create(LinkList_t *list, uint n, void *dat, uint datlen)
 ************************************************************************/
 bool Link_ChangeNodeValue(LinkList_t * list,int n, void *dat)
 {
-	LinkNode_t *t = list->node->next;
+	LinkNode_t *t;
 	int i = 0;
 
+	if(!Link_IsEmpty(list))
+		return FALSE;
+	t = list->node->next;
 	while(i < n && t != NULL)								//找到第n个节点
 	{
 		t = t->next;
@@ -98,21 +133,13 @@ bool Link_ChangeNodeValue(LinkList_t * list,int n, void *dat)
 ************************************************************************/
 bool Link_Traverse(LinkList_t *list)
 {
-	LinkNode_t *p = list->node;
+	LinkNode_t *p;
 	uchar temp[32];
 
 	printf("遍历链表：\r\n");
-	if(p == NULL)
-	{
-		printf("链表不存在\r\n");
+	if(!Link_IsEmpty(list))
 		return FALSE;
-	}
-	p = p->next;
-	if(p == NULL)
-	{
-		printf("链表为空\r\n");
-		return FALSE;
-	}
+	p = list->node->next;
 	while(p != NULL)
 	{
 		memcpy(temp,p->data,list->datlen);
@@ -132,9 +159,13 @@ bool Link_Traverse(LinkList_t *list)
 ************************************************************************/
 bool Link_InsertNode(LinkList_t *list, int n, void *dat)
 {
-	LinkNode_t *p = list->node;						//定义LinkNode_t型指针指向首节点
+	LinkNode_t *p;
 	LinkNode_t *in;									//新插入节点
+
 	printf("在节点%d前插入新节点\r\n",n);
+	if(!Link_IsEmpty(list))
+		return FALSE;
+	p = list->node;									//定义LinkNode_t型指针指向首节点
 	while(p != NULL && n--)							//定位到第n个节点，在此节点前插入新节点
 	{
 		p = p->next;
@@ -148,12 +179,41 @@ bool Link_InsertNode(LinkList_t *list, int n, void *dat)
 			printf("空间分配失败\r\n");
 			return FALSE;
 		}
-		//printf("请输入插入节点的数据：");
-		//scanf("%d",&in->Element);
 		//in->data = dat;
 		memcpy(in->data,dat,list->datlen);
 		in->next = p->next;							//插入节点指向下一个节点
 		p->next = in;								//源节点指向新插入节点
+		return TRUE;
+	}
+	else
+	{
+		printf("节点不存在！\r\n");
+		return FALSE;
+	}
+}
+
+/************************************************************************
+ *功能：获取第n个节点的数据，节点从0开始算，只算普通节点
+ *输入：list:链表地址
+ *		n:第n个节点
+ *		dat:插入的值
+ *输出：无
+ *返回：TRUE or FALSE
+************************************************************************/
+bool Link_GetNodeValue(LinkList_t *list, int n, void *dat)
+{
+	LinkNode_t *p;
+
+	if(!Link_IsEmpty(list))
+		return FALSE;
+	p = list->node;									//定义LinkNode_t型指针指向首节点
+	while(p != NULL && n--)							//定位到第n个节点，在此节点前插入新节点
+	{
+		p = p->next;
+	}
+	if(p != NULL)
+	{
+		memcpy(dat, p->data, list->datlen);
 		return TRUE;
 	}
 	else
@@ -172,9 +232,13 @@ bool Link_InsertNode(LinkList_t *list, int n, void *dat)
 ************************************************************************/
 bool Link_DeleteNode(LinkList_t *list,int n)
 {
-	LinkNode_t *p = list->node;						//定义指针指向首节点
+	LinkNode_t *p;
 	LinkNode_t *temp;								//临时节点变量
+	
 	printf("第%d个节点将被删除\r\n",n);
+	if(!Link_IsEmpty(list))
+		return FALSE;
+	p = list->node;									//定义指针指向首节点
 	while(p != NULL && n--)							//移动到第n个节点，删除
 	{
 		p = p->next;
@@ -204,8 +268,12 @@ bool Link_DeleteNode(LinkList_t *list,int n)
 ************************************************************************/
 bool Link_Clear(LinkList_t *list)
 {
-	LinkNode_t *p = list->node->next;				//指向第一个普通节点
+	LinkNode_t *p;
 	LinkNode_t *temp;								//临时节点变量
+	
+	if(!Link_IsEmpty(list))
+		return FALSE;
+	p = list->node->next;							//指向第一个普通节点
 	list->node->next = NULL;						//首个普通节点指向空指针
 	while(p != NULL)								//每个节点挨个删除
 	{
@@ -232,8 +300,12 @@ bool Link_Clear(LinkList_t *list)
 ************************************************************************/
 bool Link_Destroy(LinkList_t *list)
 {
-	LinkNode_t *p = list->node;						//指向首节点
+	LinkNode_t *p;
 	LinkNode_t *temp;								//临时节点变量
+	
+	if(!Link_IsExist(list))
+		return FALSE;
+	p = list->node;									//指向首节点
 	list->node = NULL;								//首节点指向空指针
 	list->datlen = 0;								//链表数据长度清零
 	while(p != NULL)								//每个节点挨个删除
@@ -271,15 +343,12 @@ bool Link_Reverse(LinkList_t *list)
 	LinkNode_t *preNode;							//相对于当前节点的上一个节点
 	LinkNode_t *headNode;							//头结点
 
-	if(list->node->next == NULL)
-	{
-		printf("链表为空\r\n");
+	printf("翻转单项链表\r\n");
+	if(!Link_IsEmpty(list))
 		return FALSE;
-	}
 	headNode = list->node;
 	preNode = list->node->next;
 	currNode = preNode->next;
-	printf("翻转单项链表\r\n");
 	while(preNode->next != NULL)
 	{
 		nextNode = currNode->next;					//保存next节点
