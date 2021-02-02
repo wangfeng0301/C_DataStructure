@@ -14,6 +14,8 @@ typedef struct
 	LinkNode_t *node;//节点
 }LinkList_t;
 
+bool Link_IsExist(LinkList_t *list);
+bool Link_IsEmpty(LinkList_t *list);
 bool Link_Create(LinkList_t *list, uint n, void *dat, uint datlen);//创建链表
 bool Link_Traverse(LinkList_t *list);//遍历链表
 bool Link_InsertNode(LinkList_t *list,int n, void *dat);//在第n个节点前插入新节点
