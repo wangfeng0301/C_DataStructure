@@ -3,8 +3,12 @@
  *				删除整个链表、删除某个节点
  *参考资料：《数据结构与算法》张铭，王腾蛟，赵海燕等
  *wangfeng
- *2019.11.29-2020.12.7
+ *E-mail:fengwang0301@163.com
+ *CSDN:https://blog.csdn.net/u013073067?spm=1001.2101.3001.5343
+ *GitHub:https://github.com/wangfeng0301
+ *2019.11.29-2021.2.2
  *2020.12.7  增加链表翻转
+ *2021.2.2   修改，数据类型不受限制
 ************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
@@ -39,7 +43,7 @@ bool Link_Create(LinkList_t *list, uint n, void *dat, uint datlen)
 		pNode->data = (void *)malloc(datlen);				//为普通节点分配数据内存
 		if(pNode == NULL || pNode->data == NULL)			//判断是否分配内存成功
 		{
-			printf("空间分配失败");
+			printf("新节点%d空间分配失败！\r\n",i);
 			return FALSE;
 		}
 		memcpy(pNode->data, (void *)((uint)dat+i*datlen), datlen);//赋值
@@ -50,6 +54,7 @@ bool Link_Create(LinkList_t *list, uint n, void *dat, uint datlen)
 	pTail->next = NULL;										//尾节点指向NULL,结束创建
 	list->datlen = datlen;									//指定数据类型长度
 	list->node = pHead;										//指定首节点
+	list->node->data = NULL;								//一定要初始化首节点数据区
 	return TRUE;
 }
 
@@ -59,7 +64,7 @@ bool Link_Create(LinkList_t *list, uint n, void *dat, uint datlen)
  *		list:链表地址
  *		dat:修改后的值
  *输出：无
- *返回：无
+ *返回：TRUE or FALSE
 ************************************************************************/
 bool Link_ChangeNodeValue(LinkList_t * list,int n, void *dat)
 {
@@ -89,14 +94,20 @@ bool Link_ChangeNodeValue(LinkList_t * list,int n, void *dat)
  *功能：遍历节点
  *输入：list:链表地址
  *输出：无
- *返回：无
+ *返回：TRUE or FALSE
 ************************************************************************/
 bool Link_Traverse(LinkList_t *list)
 {
-	LinkNode_t *p = list->node->next;
-	uchar temp[8];
+	LinkNode_t *p = list->node;
+	uchar temp[32];
 
 	printf("遍历链表：\r\n");
+	if(p == NULL)
+	{
+		printf("链表不存在\r\n");
+		return FALSE;
+	}
+	p = p->next;
 	if(p == NULL)
 	{
 		printf("链表为空\r\n");
@@ -117,7 +128,7 @@ bool Link_Traverse(LinkList_t *list)
  *		n:第n个节点
  *		dat:插入的值
  *输出：无
- *返回：无
+ *返回：TRUE or FALSE
 ************************************************************************/
 bool Link_InsertNode(LinkList_t *list, int n, void *dat)
 {
@@ -143,13 +154,13 @@ bool Link_InsertNode(LinkList_t *list, int n, void *dat)
 		memcpy(in->data,dat,list->datlen);
 		in->next = p->next;							//插入节点指向下一个节点
 		p->next = in;								//源节点指向新插入节点
+		return TRUE;
 	}
 	else
 	{
 		printf("节点不存在！\r\n");
 		return FALSE;
 	}
-	return TRUE;
 }
 
 /************************************************************************
@@ -161,7 +172,7 @@ bool Link_InsertNode(LinkList_t *list, int n, void *dat)
 ************************************************************************/
 bool Link_DeleteNode(LinkList_t *list,int n)
 {
-	LinkNode_t *p = list->node->next;						//定义指针指向首节点
+	LinkNode_t *p = list->node;						//定义指针指向首节点
 	LinkNode_t *temp;								//临时节点变量
 	printf("第%d个节点将被删除\r\n",n);
 	while(p != NULL && n--)							//移动到第n个节点，删除
@@ -186,6 +197,34 @@ bool Link_DeleteNode(LinkList_t *list,int n)
 }
 
 /************************************************************************
+ *功能：清空整个链表
+ *输入：list:链表地址
+ *输出：无
+ *返回：TRUE or FALSE
+************************************************************************/
+bool Link_Clear(LinkList_t *list)
+{
+	LinkNode_t *p = list->node->next;				//指向第一个普通节点
+	LinkNode_t *temp;								//临时节点变量
+	list->node->next = NULL;						//首个普通节点指向空指针
+	while(p != NULL)								//每个节点挨个删除
+	{
+		temp = p->next;								//临时变量指向下一个节点
+		if(p->data != NULL)
+			free(p->data);							//释放数据地址,注意释放的顺序不能换
+		p->data = NULL;
+		free(p);									//释放当前节点内存
+		p = temp;
+	}
+	if(p == NULL)
+	{
+		printf("清空链表成功！\r\n");
+		return TRUE;
+	}
+	return FALSE;
+}
+
+/************************************************************************
  *功能：销毁整个链表
  *输入：list:链表地址
  *输出：无
@@ -193,56 +232,66 @@ bool Link_DeleteNode(LinkList_t *list,int n)
 ************************************************************************/
 bool Link_Destroy(LinkList_t *list)
 {
-	LinkNode_t *p = list->next;//指向首节点后面一个节点
-	LinkNode_t *temp;//临时变量
-	list->next = NULL;//首节点指向空指针
-	while(p != NULL)//每个节点挨个删除
+	LinkNode_t *p = list->node;						//指向首节点
+	LinkNode_t *temp;								//临时节点变量
+	list->node = NULL;								//首节点指向空指针
+	list->datlen = 0;								//链表数据长度清零
+	while(p != NULL)								//每个节点挨个删除
 	{
-		temp = p->next;//临时变量指向下一个节点
-		free(p);//释放当前节点内存
+		temp = p->next;								//临时变量指向下一个节点
+		if(p->data != NULL)
+			free(p->data);							//释放数据地址,注意释放的顺序不能换
+		p->data = NULL;
+		free(p);									//释放当前节点内存
 		p = temp;
 	}
 	if(p == NULL)
 	{
-		free(temp);//释放临时变量内存
-		temp = NULL;
-		printf("删除链表成功！\r\n");
+		/*if(p->data != NULL)
+			free(p->data);							//释放数据地址,注意释放的顺序不能换
+		p->data = NULL;
+		free(temp);									//释放临时变量内存
+		temp = NULL;*/
+		printf("销毁链表成功！\r\n");
+		return TRUE;
 	}
+	return FALSE;
 }
-#if 0
+
 /************************************************************************
- *翻转整个链表
+ *功能：翻转整个链表
  *输入：list:链表地址
  *输出：list:翻转后的链表
  *返回：无
 ************************************************************************/
-void ReverseLinkList(LinkNode_t *list)
+bool Link_Reverse(LinkList_t *list)
 {
-	LinkNode_t *currNode;//当前要插到head后面的node
-	LinkNode_t *nextNode;//相对于当前节点的下一个节点
-	LinkNode_t *preNode; //相对于当前节点的上一个节点
-	LinkNode_t *headNode;//头结点
+	LinkNode_t *currNode;							//当前要插到head后面的node
+	LinkNode_t *nextNode;							//相对于当前节点的下一个节点
+	LinkNode_t *preNode;							//相对于当前节点的上一个节点
+	LinkNode_t *headNode;							//头结点
 
-	if(list->next == NULL)
+	if(list->node->next == NULL)
 	{
 		printf("链表为空\r\n");
-		return;
+		return FALSE;
 	}
-	headNode = list;
-	preNode = list->next;
+	headNode = list->node;
+	preNode = list->node->next;
 	currNode = preNode->next;
 	printf("翻转单项链表\r\n");
 	while(preNode->next != NULL)
 	{
-		nextNode = currNode->next;//保存next节点
+		nextNode = currNode->next;					//保存next节点
 		preNode->next = currNode->next;
 		currNode->next = headNode->next;
 		headNode->next = currNode;
 
 		currNode = nextNode;
 	}
+	return TRUE;
 }
-#endif
+
 void testLink(void)
 {
 	int age[3] = {10,11,12};
@@ -264,12 +313,15 @@ void testLink(void)
 	if(Link_InsertNode(&student,3,&dat))//在第n个节点前插入新节点
 		Link_Traverse(&student);//遍历链表
 
-	//if(Link_DeleteNode(&student,0))//删除节点
-	//	Link_Traverse(&student);//遍历链表
+	if(Link_DeleteNode(&student,0))//删除节点
+		Link_Traverse(&student);//遍历链表
 	
-	/*ReverseLinkList(student);//翻转链表
-	Link_Traverse(student);//遍历链表
+	if(Link_Reverse(&student))//翻转链表
+		Link_Traverse(&student);//遍历链表
+
+	if(Link_Clear(&student))//翻转链表
+		Link_Traverse(&student);//遍历链表
 	
-	DeleteLinkList(student);//删除链表
-	Link_Traverse(student);//遍历链表*/
+	if(Link_Destroy(&student))//删除链表
+		Link_Traverse(&student);//遍历链表
 }
