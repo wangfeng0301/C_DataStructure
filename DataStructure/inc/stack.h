@@ -20,7 +20,7 @@ typedef struct LinkStackNode
 /* 链式栈结构体，栈空间由链表组成 */
 typedef struct
 {
-	int datlen;	//节点数据类型长度
+	uint datlen;	//节点数据类型长度
 	LinkStackNode_t *top;//链表结构体
 	int size;	//栈大小
 }LinkStack_t;

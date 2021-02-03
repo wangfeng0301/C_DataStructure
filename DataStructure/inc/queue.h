@@ -20,7 +20,7 @@ typedef struct LinkQueueNode
 /* 链式队列结构体 */
 typedef struct 
 {
-	int datlen;				//节点数据类型长度
+	uint datlen;				//节点数据类型长度
 	int size;				//队列大小
 	LinkQueueNode_t *front;	//队头
 	LinkQueueNode_t *rear;	//队尾

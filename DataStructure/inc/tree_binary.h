@@ -14,11 +14,19 @@ typedef struct
 }ValueType_t;
 typedef struct BinaryTreeNode
 {		
-	ValueType_t val;				//数据	
+	//ValueType_t val;				//数据	
+	void *dat;						//数据
 	struct BinaryTreeNode *left;	//左子节点指针
 	struct BinaryTreeNode *right;	//右子节点指针
 	struct BinaryTreeNode *parent;	//指向父节点指针
 }BinaryTreeNode_t;
+typedef struct 
+{
+	BinaryTreeNode_t *root;			//二叉树根节点
+	uint datlen;					//节点数据类型长度
+}BinaryTree_t;
+
+bool BinaryTree_Create(BinaryTree_t *tree, uint datlen);
 
 void LevelOrder(BinaryTreeNode_t *root);//广度周游二叉树
 void testBinaryTree(void);

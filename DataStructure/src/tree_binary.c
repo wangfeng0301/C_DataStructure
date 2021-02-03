@@ -2,10 +2,14 @@
 *二叉树：
 *参考资料：《数据结构与算法》张铭，王腾蛟，赵海燕等
 *wangfeng
-*2019.11.28
+*E-mail:fengwang0301@163.com
+*CSDN:https://blog.csdn.net/u013073067?spm=1001.2101.3001.5343
+*GitHub:https://github.com/wangfeng0301
+*2019.11.28-2021.2.3
 **********************************************************************/
 #include <stdio.h>
 #include <malloc.h>
+#include <string.h>
 #include "tree_binary.h"
 
 /************************************************************************/
@@ -15,7 +19,7 @@
 /* rightchild:	右子树
 /* 返回：		根节点地址
 /************************************************************************/
-static BinaryTreeNode_t *CreateBinaryTree(BinaryTreeNode_t *parent, BinaryTreeNode_t *leftchild, BinaryTreeNode_t *rightchild, ValueType_t data)
+/*static BinaryTreeNode_t *CreateBinaryTree(BinaryTreeNode_t *parent, BinaryTreeNode_t *leftchild, BinaryTreeNode_t *rightchild, ValueType_t data)
 {
 	BinaryTreeNode_t *temp = (BinaryTreeNode_t *)malloc(sizeof(BinaryTreeNode_t));	//开辟空间
 	if(temp == NULL)
@@ -29,6 +33,28 @@ static BinaryTreeNode_t *CreateBinaryTree(BinaryTreeNode_t *parent, BinaryTreeNo
 	temp->val = data;														//数据赋值
 
 	return temp;															//返回的节点地址即根节点
+}*/
+/************************************************************************/
+/* 功能：创建一个二叉树                                                     
+/* 输入：tree:二叉树地址
+/*		datlen:数据类型长度
+/*		rootdat:根节点数据
+/* 输出：
+/* 返回：TRUE or FALSE
+/************************************************************************/
+bool BinaryTree_Create(BinaryTree_t *tree, uint datlen, void *rootdat)
+{
+	BinaryTreeNode_t *root = (BinaryTreeNode_t *)malloc(sizeof(BinaryTreeNode_t));//开辟节点空间
+	root->dat = (void *)malloc(datlen);										//开辟数据空间
+	if(root == NULL || root->dat == NULL)
+	{
+		printf("创建失败!\r\n");
+		return FALSE;
+	}
+	memcpy(root->dat, rootdat, datlen);										//数据赋值
+	tree->root = root;
+	tree->datlen = datlen;
+	return TRUE;
 }
 
 /************************************************************************/
