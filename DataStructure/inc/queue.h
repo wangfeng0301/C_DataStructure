@@ -2,40 +2,44 @@
 #define __QUEUE_H__
 #include "type.h"
 
-/* 队列数据结构体 */
-typedef struct
-{
-	//char c;
-	int element;
-}QueueData_t;
-
 typedef struct  
 {
 	int size;//队列大小
 	int front;//队头
 	int rear;//队尾
-	QueueData_t *qu;//数组存放数据
+	void *qu;//数组存放数据
+	int qulen;//每个元素的大小（字节）
 }Queue_t;
 
 /*链式队列节点结构体*/
 typedef struct LinkQueueNode
 {
-	QueueData_t data;
+	void *data;
 	struct LinkQueueNode* next;
 }LinkQueueNode_t;
 /* 链式队列结构体 */
 typedef struct 
 {
-	int size;//队列大小
-	LinkQueueNode_t *front;//队头
-	LinkQueueNode_t *rear;//队尾
-	//LinkQueueNode_t *qu;//数组存放数据
+	int datlen;				//节点数据类型长度
+	int size;				//队列大小
+	LinkQueueNode_t *front;	//队头
+	LinkQueueNode_t *rear;	//队尾
 }LinkQueue_t;
 
-void CreateQueue(Queue_t *q,int size);
-bool EnQueue(Queue_t *q,QueueData_t dat);
-bool DeQueue(Queue_t *q, QueueData_t *dat);
-void ClearQueue(Queue_t *q);
+bool Queue_IsEmpty(Queue_t *q);
+bool Queue_IsFull(Queue_t *q);
+bool Queue_Create(Queue_t *q, int size, uint datlen);
+bool Queue_En(Queue_t *q, void *dat);
+bool Queue_De(Queue_t *q, void *dat);
+void Queue_Clear(Queue_t *q);
+void Queue_Destroy(Queue_t *q);
+
+bool LinkQueue_IsEmpty(LinkQueue_t *q);
+void LinkQueue_Create(LinkQueue_t *q, uint datlen);
+bool LinkQueue_En(LinkQueue_t *q, void *dat);
+bool LinkQueue_De(LinkQueue_t *q, void *dat);
+void LinkQueue_Clear(LinkQueue_t *q);
+void LinkQueue_Destroy(LinkQueue_t *q);
 
 void testQueue(void);
 void testLinkQueue(void);
