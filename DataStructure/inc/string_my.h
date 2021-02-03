@@ -22,7 +22,9 @@ char *Mystrstr(const char *haystack, const char *needle);
 char *Mystrtok(char *str, const char *delim);
 
 int Myatoi(char *str);//字符串转换为整数
+int ViolentMatch(char* T, char* P);
 int *findNext(char *P);
+int KmpSearch(char *s,char *p);
 
 void testString(void);
 

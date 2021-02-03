@@ -1,9 +1,23 @@
+/*********************************************************************
+*应用程序：包含对链表、栈、队列等数据结构的应用
+*参考资料：《数据结构与算法》张铭，王腾蛟，赵海燕等
+*wangfeng
+*E-mail:fengwang0301@163.com
+*CSDN:https://blog.csdn.net/u013073067?spm=1001.2101.3001.5343
+*GitHub:https://github.com/wangfeng0301
+*2019.11.28-2021.2.3
+*2021.2.3   修改，使用通用循环双链表解决约斯夫环问题
+*			增加，使用通用栈实现四则运算
+*			修改，使用通用栈解决阶乘和背包问题
+**********************************************************************/
 #include<stdio.h>
 #include<malloc.h>
 #include<stdlib.h>
 #include "application.h"
 #include "linkedlist_single.h"
 #include "linkedlist_double.h"
+#include "stack.h"
+#include "string.h"
 
 /************************************************************************
  *问题描述：Josephus问题（约瑟夫环）：n人围一桌，从第s人开始报数，数到第m人出列
@@ -64,8 +78,257 @@ void josephus(unsigned int n, unsigned int s, unsigned int m)
 	CycDoubleLink_Destroy(&person);				//销毁链表
 }
 
-/***************************递归算法*************************************/
 
+typedef struct 
+{
+	uchar flag;			//元素的类型：操作符或数字
+#define OPERATOR	0x01
+#define NUMBER		0x02
+	int element;		//元素内容
+}Postfix_t;
+/*运算符优先级*/
+static int OperatorPriority(char c)
+{
+	int priority = -1;
+	switch(c)
+	{
+		case '+':
+		case '-':
+			priority = 0;
+			break;
+		case '*':
+		case '/':
+			priority = 1;
+			break;
+		default:
+			break;
+	}
+	return priority;
+}
+/************************************************************************
+ *问题描述：中缀表达式转后缀表达式
+ *使用思路：利用栈，将中缀表达式转成后缀表达式
+ *输入：infix:中缀表达式字符串
+ *输出：postfix:后缀表达式
+ *返回：TRUE or FALSE
+************************************************************************/
+static bool InfixExp2PostfixExp(char *infix, Postfix_t *postfix)
+{
+	uchar infix_len;//字符串长度
+	uchar i = 0, j = 0, k = 0;
+	char ch[20];
+	Stack_t s;
+
+	infix_len = strlen(infix);
+	Stack_Create(&s, infix_len, sizeof(char));			//创建栈空间，该栈只存放运算符
+	while(i < infix_len)
+	{
+		/* 1.将数字字符串转换成整数，如“123”转成123,操作数直接输出到postfix中 */
+		j = 0;
+		if(infix[i] <= '9' && infix[i] >= '0')
+		{
+			while(infix[i] <= '9' && infix[i] >= '0' && i < infix_len)
+				ch[j++] = infix[i++];
+			ch[j] = 0;									//字符串末尾填充0，表示结束
+			postfix[k].element = atoi(ch);				//字符串转换成整数
+			postfix[k].flag = NUMBER;					//标志记录为数字
+			k ++;
+		}
+		/* 2.遇到开括号，将其入栈 */
+		else if(infix[i] == '(')
+		{
+			Stack_Push(&s, &infix[i]);
+			i ++;
+		}
+		/* 3.遇到闭括号 */
+		else if(infix[i] == ')')
+		{
+			/* 3.1 栈若为空，括号不匹配 */
+			if(!Stack_IsEmpty(&s))
+			{
+				Stack_Destroy(&s);
+				printf("括号不匹配\r\n");
+				return FALSE;
+			}
+			/* 3.2 栈若非空，依次弹出栈中元素，直到遇到第一个开括号 */
+			else
+			{
+				while(Stack_IsEmpty(&s))
+				{
+					if(!Stack_Pop(&s, &ch[0]))
+						break;
+					if(ch[0] == '(')
+					{
+						ch[0] = 0;
+						break;
+					}
+					else
+					{
+						postfix[k].element = ch[0];
+						postfix[k].flag = OPERATOR;
+						k ++;
+					}
+				}
+				/* 3.2.1 栈空了还没有遇到开括号，则括号不匹配 */
+				if(!Stack_IsEmpty(&s) && ch[0] != 0)
+				{
+					Stack_Destroy(&s);
+					printf("括号不匹配\r\n");
+					return FALSE;
+				}
+			}
+			i ++;
+		}
+		/* 4.遇到运算符 */
+		else if(infix[i] == '+' || infix[i] == '-' || infix[i] == '*' || infix[i] == '/')
+		{
+			/* 4.1 当栈非空 && 栈顶不是开括号 && 栈顶运算符优先级不低于输入的运算符优先级，弹出栈顶放到后缀表达式中 */
+			while(Stack_IsEmpty(&s))
+			{
+				Stack_GetTop(&s, &ch[0]);
+				if(ch[0] != '(' && OperatorPriority(ch[0]) >= OperatorPriority(infix[i]))
+				{
+					Stack_Pop(&s, &ch[0]);
+					postfix[k].element = ch[0];		
+					postfix[k].flag = OPERATOR;
+					k ++;
+				}
+				else
+					break;
+			}
+			/* 4.2 将输入的运算符入栈 */
+			if(!Stack_Push(&s, &infix[i]))
+			{
+				Stack_Destroy(&s);
+				return FALSE;
+			}
+			i ++;
+		}
+		else
+		{
+			printf("表达式出现非法字符\r\n");
+			return FALSE;
+		}
+	}
+	/* 5. 扫描完，出栈所有元素 */
+	while(Stack_IsEmpty(&s))
+	{
+		Stack_Pop(&s, &ch[0]);
+		if(ch[0] != '(')
+		{
+			postfix[k].element = ch[0];		
+			postfix[k].flag = OPERATOR;
+			k ++;
+		}
+		else
+		{
+			Stack_Destroy(&s);
+			printf("括号不匹配\r\n");
+			return FALSE;
+		}
+	}
+	postfix[k].flag = 0;						//标志位清零，用作结束标志
+	Stack_Destroy(&s);							//销毁栈
+	return TRUE;
+}
+/************************************************************************
+ *问题描述：四则运算
+ *使用思路：利用栈，将中缀表达式转成后缀表达式
+ *输入：postfix:后缀表达式
+ *输出：result:输出结果
+ *返回：TRUE or FALSE
+************************************************************************/
+bool Calculator(Postfix_t *postfix, int *result)
+{
+	Stack_t s;
+	uint i = 0;
+	int operand1,operand2;
+
+	if(!Stack_Create(&s, 20, sizeof(int)))
+		return FALSE;
+	while(postfix[i].flag != 0)
+	{
+		if(postfix[i].flag == OPERATOR)
+		{
+			if(!Stack_Pop(&s, &operand1))
+				goto err;
+			if(!Stack_Pop(&s, &operand2))
+				goto err;
+			switch(postfix[i].element)
+			{
+				case '+':
+					operand2 += operand1;
+					break;
+				case '-':
+					operand2 -= operand1;
+					break;
+				case '*':
+					operand2 *= operand1;
+					break;
+				case '/':
+					if(operand1 == 0)
+					{
+						printf("除数不能为0\r\n");
+						goto err;
+					}
+					operand2 /= operand1;
+					break;
+				default:
+					printf("非法运算符\r\n");
+					goto err;
+			}
+			if(!Stack_Push(&s, &operand2))
+				goto err;
+		}
+		else if(postfix[i].flag == NUMBER)
+		{
+			if(!Stack_Push(&s, &(postfix[i].element)))
+				goto err;
+		}
+		i ++;
+	}
+	if(!Stack_Pop(&s, result))//最终结果出栈
+		goto err;
+	if(Stack_IsEmpty(&s))
+	{
+		printf("出错,运算后栈非空\r\n");
+		goto err;
+	}
+	Stack_Destroy(&s);
+	return TRUE;
+err:
+	Stack_Destroy(&s);
+	return FALSE;
+}
+void testCalculator(void)
+{
+	uint i = 0;
+	char experssion[512] = {0};
+	Postfix_t postfix[100];
+	int result;
+
+	printf("请输入表达式：\r\n");
+	scanf("%s",experssion);
+	if(InfixExp2PostfixExp(experssion, postfix))
+	{
+		printf("输出后缀表达式：\r\n");
+		while(postfix[i].flag != 0)
+		{
+			if(postfix[i].flag == OPERATOR)
+				printf("%c ",postfix[i].element);
+			else if(postfix[i].flag == NUMBER)
+				printf("%d ",postfix[i].element);
+			i ++;
+		}
+		printf("\r\n");
+		if(Calculator(postfix, &result))
+			printf("运算结果为：%d\r\n",result);
+		else
+			printf("计算出错\r\n");
+	}
+}
+
+/***************************递归算法*************************************/
 /*n的阶乘：递归方式*/
 long factorial_recursion(long n)
 {
@@ -92,231 +355,155 @@ long factorial_iteration(long n)
 	return m;
 }
 
-/****************************************************************************/
-/*背包问题
-*假设一个背包可放入重量为s，现有n件物品，重量分别为w0,w1,...wn-1
-*问能否从这n件物品中选择若干放入背包，是重量之和正好为s？*/
-/*
-						/	true,   当s=0
-knap_recursion(s,n)=   |	false,  当s<0或（s>0且n<1）
-						\	knap_recursion(s-wn-1,n-1,w)||knap_recursion(s,n-1,w),当s>0且n>=1
-/****************************************************************************/
-//递归方法
-unsigned char knap_recursion(int s,int n,int* w)
+/************************************************************************
+ *问题描述：简化的背包问题,假设一个背包可放入重量为s，现有n件物品，重量分别为w0,w1,...wn-1
+ *			问能否从这n件物品中选择若干放入背包，是重量之和正好为s？
+ *使用思路：递归方式				/	true,   当s=0
+			knap_recursion(s,n)=   |	false,  当s<0或（s>0且n<1）
+									\	knap_recursion(s-wn-1,n-1,w)||knap_recursion(s,n-1,w),当s>0且n>=1
+ *输入：s:背包可放入重量
+ *		n:n件物品
+ *		w:各物品重量
+ *输出：无
+ *返回：TRUE or FALSE
+************************************************************************/
+bool RecKnap(int s, int n, int *w)
 {
 	if(0 == s)
-		return 1;
+		return TRUE;
 	if(s<0 || (s>0 && n<1))
-		return 0;
+		return FALSE;
 	if(s>0 && n>=1)
 	{
-		if(knap_recursion(s-w[n-1],n-1,w))
+		if(RecKnap(s-w[n-1],n-1,w))
 		{
 			printf("%d ",w[n-1]);
-			return 1;
+			return TRUE;
 		}
 		else
-			return knap_recursion(s,n-1,w);
+			return RecKnap(s,n-1,w);
 	}
 }
 
-//非递归方法，使用栈
-//规则1：若w[n-1]包含在解中，求解knap(s-w[n-1],n-1)
-//规则2：若w[n-1]不包含在解中，求解knap(s,n-1)
+
 typedef enum //返回地址类型
 {
 	rd1=0,			//第一种情况，计算knap(s,n)完毕返回到调用本函数的其他函数
 	rd2,			//第二种情况，计算knap(s-w[n-1],n-1)完毕，返回到本调用函数继续计算
 	rd3				//第三种情况，计算knap(s,n-1)完毕，返回到本调用函数继续计算
-}rdType;
+}rdType_t;
 typedef struct  
 {
 	int s,n;		//背包的承重亮和物品的数目
-	rdType rd;		//返回地址
+	rdType_t rd;	//返回地址
 	unsigned char k;//结果单元
-}KnapNode;
-
-/*链表节点结构体*/
-typedef struct LinkNode_knap
-{
-	KnapNode node;
-	struct LinkNode_knap* next;
-}LinkNode_knap;
-/*链表结构体*/
-typedef struct
-{
-	LinkNode_knap *top;	
-	int size;
-}LinkStack_knap;
-/*创建栈,size:栈的大小*/
-static void CreateLinkStack_knap(LinkStack_knap *s)
-{
-	s->size = 0;	//初始化为空栈
-	s->top = NULL;	//指向空
-}
-/*压栈*/
-static void LSpush_knap(LinkStack_knap *s,KnapNode node)//向链首插入节点，作为后入节点
-{
-	LinkNode_knap *temp = (LinkNode_knap *)malloc(sizeof(LinkNode_knap));//开辟空间,大小为LinkNode_knap
-	if(s->top == NULL)				//第一个压栈的元素
-	{
-		s->top = temp;				//栈顶指向当前空间
-		s->top->next = NULL;
-	}
-	else
-	{
-		temp->next = s->top;		//新建节点指向之前的节点，相当于在之前节点插入了新节点
-		s->top = temp;
-	}
-	s->top->node.k = node.k;		//赋值
-	s->top->node.n = node.n;
-	s->top->node.rd = node.rd;
-	s->top->node.s = node.s;
-	s->size++;						//栈大小加1
-}
-
-/*出栈,返回栈内元素*/
-static KnapNode LSpop_knap(LinkStack_knap *s)
-{
-	KnapNode temp;
-	LinkNode_knap *tempNode;		//临时节点
-	if(s->top != NULL)				//栈非空
-	{
-		temp.k = s->top->node.k;	//提取元素
-		temp.n = s->top->node.n;
-		temp.rd = s->top->node.rd;
-		temp.s = s->top->node.s;
-		tempNode = s->top;			//当前节点给临时节点
-		s->top = s->top->next;		//指向下一个节点
-		free(tempNode);
-		tempNode = NULL;
-		s->size--;					//栈大小减1
-
-		return temp;
-	}
-	else
-	{
-		printf("栈空\r\n");
-		return;
-	}
-}
-/*判空*/
-static unsigned char isEmpty_knap(LinkStack_knap *s)
-{
-	if(s->top != NULL)				//栈非空返回0
-	{
-		return 0;
-	}
-	else
-	{
-		printf("栈空\r\n");			//栈空返回1
-		return 1;
-	}
-}
-/*返回栈顶内容，但不弹出*/
-static unsigned char LStop_knap(LinkStack_knap *s,KnapNode *node)
-{
-	if(s->size == 0)
-	{
-		printf("栈为空，不能读出栈顶元素\r\n");
-		return 0;
-	}
-	else
-	{
-		node->n = s->top->node.n;
-		node->rd = s->top->node.rd;
-		node->s = s->top->node.s;
-		return 1;
-	}
-
-}
-/*非递归方法函数实现*/
+}KnapNode_t;
+/************************************************************************
+ *问题描述：简化的背包问题,假设一个背包可放入重量为s，现有n件物品，重量分别为w0,w1,...wn-1
+ *			问能否从这n件物品中选择若干放入背包，是重量之和正好为s？
+ *使用思路：非递归方法，使用栈
+ *			规则1：若w[n-1]包含在解中，求解knap(s-w[n-1],n-1)
+ *			规则2：若w[n-1]不包含在解中，求解knap(s,n-1)
+ *输入：s:背包可放入重量
+ *		n:n件物品
+ *		w:各物品重量
+ *输出：无
+ *返回：TRUE or FALSE
+************************************************************************/
 unsigned char nonRecKnap(int s,int n,int* w)
-{				
-	//KnapNode *tmp = (KnapNode *)malloc(sizeof(KnapNode));	//开辟新空间
-	//KnapNode *x = (KnapNode *)malloc(sizeof(KnapNode));		//开辟新空间//缓冲变量
-	KnapNode tmp,x;
-	LinkStack_knap knap;									//链式栈变量
+{
+	KnapNode_t tmp,x;
+	LinkStack_t knap;										//链式栈变量
 
-	CreateLinkStack_knap(&knap);							//创建链式栈
+	LinkStack_Create(&knap, sizeof(KnapNode_t));			//创建链式栈
 
 	tmp.s = s;												//非递归函数入口,初始化
 	tmp.n = n;
 	tmp.rd = rd1;
-	LSpush_knap(&knap,tmp);									//将初始化的节点地址压入栈
+	LinkStack_Push(&knap, &tmp);							//将初始化的节点地址压入栈
 
 label0:
-	tmp = LSpop_knap(&knap);								//出栈，查看栈顶元素分情况处理。LSpop_knap返回int型，需强制转换成地址，然后取值。
+	LinkStack_Pop(&knap, &tmp);								//出栈，查看栈顶元素分情况处理
 	if(tmp.s == 0)											//若满足递归出口条件
 	{
 		tmp.k = 1;											//修改栈顶结果单元k,=1表示有解
-		LSpush_knap(&knap,tmp);								//再次压栈
+		LinkStack_Push(&knap, &tmp);						//再次压栈
 		goto label3;										//转向递归出口处理
 	}
 	if(tmp.s<0 || (tmp.s>0 && tmp.n<1))
 	{
 		tmp.k = 0;											//修改栈顶结果单元k,=0表示无解
-		LSpush_knap(&knap,tmp);								//压栈
+		LinkStack_Push(&knap, &tmp);						//压栈
 		goto label3;
 	}
-	LSpush_knap(&knap,tmp);									//尚未满足递归出口
+	LinkStack_Push(&knap, &tmp);							//尚未满足递归出口
 
 	x.s = tmp.s - w[tmp.n-1];								//按照规则1进行处理
 	x.n = tmp.n - 1;
 	x.rd = rd2;												//计算knap(s-w[n-1],n-1)完毕，返回到本调用函数继续计算
-	LSpush_knap(&knap,x);									//压栈
+	LinkStack_Push(&knap, &x);								//压栈
 
 	goto label0;
 label1:														//规则1对应的返回处理
-	x = LSpop_knap(&knap);									//出栈，查看栈顶元素分情况处理。LSpop_knap返回int型，需强制转换成地址，然后取值。
+	LinkStack_Pop(&knap, &x);								//出栈，查看栈顶元素分情况处理。LSpop_knap返回int型，需强制转换成地址，然后取值。
 	if(tmp.k == 1)											//若某层的结果单元为真
 	{
 		x.k = 1;											//把真结果上传给调用方
-		LSpush_knap(&knap,x);								//压栈
+		LinkStack_Push(&knap, &x);							//压栈
 		printf("%d ",w[(x.n)-1]);							//输出对应物品
 		goto label3;
 	}
-	LSpush_knap(&knap,x);									//压栈,若某层的结果单元为假
+	LinkStack_Push(&knap, &x);								//压栈,若某层的结果单元为假
 	
 	tmp.s = x.s;											//当前物品的选择不合适，回溯，调用规则2
 	tmp.n = x.n-1;											//按照规则2进行压栈处理
 	tmp.rd = rd3;					
-	LSpush_knap(&knap,tmp);									//压栈
+	LinkStack_Push(&knap, &tmp);							//压栈
 
 	goto label0;
 label2:														//规则2对应的返回处理
-	x = LSpop_knap(&knap);									//出栈，查看栈顶元素分情况处理。LSpop_knap返回int型，需强制转换成地址，然后取值。
+	LinkStack_Pop(&knap, &x);								//出栈，查看栈顶元素分情况处理。LSpop_knap返回int型，需强制转换成地址，然后取值。
 	x.k = tmp.k;											//结果单元k的内容上传给调用方
-	LSpush_knap(&knap,x);									//压栈
+	LinkStack_Push(&knap, &x);								//压栈
 label3:														//递归出口处理
-	tmp = LSpop_knap(&knap);								//出栈，查看栈顶元素分情况处理。LSpop_knap返回int型，需强制转换成地址，然后取值。
+	LinkStack_Pop(&knap, &tmp);								//出栈，查看栈顶元素分情况处理。LSpop_knap返回int型，需强制转换成地址，然后取值。
 	switch(tmp.rd)
 	{
-		case rd1:return tmp.k;								//算法结束并返回结果
+		case rd1:
+			LinkStack_Destroy(&knap);
+			return tmp.k;									//算法结束并返回结果
 		case rd2:goto label1;								//转向规则1的返回处理处
 		case rd3:goto label2;								//转向规则2的返回处理处
 	}
 }
-
-//优化非递归方法，使用栈
-//规则1：若w[n-1]包含在解中，求解knap(s-w[n-1],n-1)
-//规则2：若w[n-1]不包含在解中，求解knap(s,n-1)
+/************************************************************************
+ *问题描述：简化的背包问题,假设一个背包可放入重量为s，现有n件物品，重量分别为w0,w1,...wn-1
+ *			问能否从这n件物品中选择若干放入背包，是重量之和正好为s？
+ *使用思路：优化非递归方法，使用栈
+ *			规则1：若w[n-1]包含在解中，求解knap(s-w[n-1],n-1)
+ *			规则2：若w[n-1]不包含在解中，求解knap(s,n-1)
+ *输入：s:背包可放入重量
+ *		n:n件物品
+ *		w:各物品重量
+ *输出：无
+ *返回：TRUE or FALSE
+************************************************************************/
 unsigned char nonRecknapOpt(int s,int n, int* w)
 {
 	int t,n0 = n;
 	unsigned char k = 0;									//结果，初始化为0，表示错误
-	KnapNode tmp,x;											//临时变量
+	KnapNode_t tmp,x;										//临时变量
 
-	LinkStack_knap knap;									//链式栈变量
-	CreateLinkStack_knap(&knap);							//创建链式栈
+	LinkStack_t knap;										//链式栈变量
+	LinkStack_Create(&knap, sizeof(KnapNode_t));			//创建链式栈
 	tmp.s = s;
 	tmp.rd = rd1;
-	LSpush_knap(&knap,tmp);									//将初始化的节点地址压入栈
+	LinkStack_Push(&knap, &tmp);							//将初始化的节点地址压入栈
 
-	while(!isEmpty_knap(&knap))
+	while(LinkStack_IsEmpty(&knap))
 	{
 		t = knap.size;										//获取栈的大小
-		LStop_knap(&knap,&tmp);								//获取栈顶元素，但不弹出
+		LinkStack_GetTop(&knap,&tmp);						//获取栈顶元素，但不弹出
 		
 		while(tmp.s>=0 && (tmp.s<=0 || n0>=t))				//若获取栈顶元素成功，判断是否符合出口条件
 		{
@@ -329,35 +516,38 @@ unsigned char nonRecknapOpt(int s,int n, int* w)
 			{
 				x.s = tmp.s - w[n0-t];
 				x.rd = rd2;
-				LSpush_knap(&knap,x);					
+				LinkStack_Push(&knap, &x);					
 			}
 			t = knap.size;
-			LStop_knap(&knap,&tmp);
+			LinkStack_GetTop(&knap, &tmp);
 		}
 		
-		while(!isEmpty_knap(&knap))							//返回处理
+		while(LinkStack_IsEmpty(&knap))						//返回处理
 		{
-			tmp = LSpop_knap(&knap);						//读出栈顶元素
+			LinkStack_Pop(&knap, &tmp);						//读出栈顶元素
 			t = knap.size;
 			if(tmp.rd == rd1)								//算法结束
+			{
+				LinkStack_Destroy(&knap);
 				return k;
+			}
 			if(tmp.rd == rd2)								//从规则1返回
 			{
 				if(1 == k)									//结果为真，打印对应物品
 					printf("%d ",w[n0-t]);
 				else										//否则回溯，采用规则2进栈
 				{
-					LStop_knap(&knap,&x);
+					LinkStack_GetTop(&knap, &x);
 					tmp.s = x.s;
 					tmp.rd = rd3;
-					LSpush_knap(&knap,tmp);
+					LinkStack_Push(&knap, &tmp);
 					break;
 				}
 			}
 		}
 	}
 }
-void testRecursion()
+void testRecursion(void)
 {
 	long n=6;//求阶乘用
 	int w[4] = {8,7,1,9};//求背包问题用
@@ -365,7 +555,7 @@ void testRecursion()
 	printf("%ld的阶乘：%ld\r\n",n,factorial_iteration(n));
 
 	printf("递归方法： ");
-	if(knap_recursion(15,4,w))
+	if(RecKnap(15,4,w))
 		printf("此背包问题有解\r\n");
 	else
 		printf("此背包问题无解\r\n");

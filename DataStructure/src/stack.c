@@ -6,8 +6,9 @@
 *E-mail:fengwang0301@163.com
 *CSDN:https://blog.csdn.net/u013073067?spm=1001.2101.3001.5343
 *GitHub:https://github.com/wangfeng0301
-*2019.11.28-2021.2.2
+*2019.11.28-2021.2.3
 *2021.2.2   修改，不受数据类型限制
+*2021.2.3	增加，Stack_GetTop和LinkStack_GetTop
 **********************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
@@ -52,7 +53,7 @@ bool Stack_IsExist(Stack_t *s)
  *功能：判断栈是否空
  *输入：s：栈指针 
  *输出：无
- *返回：TRUE or FALSE
+ *返回：栈空返回FALSE;非空返回TRUE
 ************************************************************************/
 bool Stack_IsEmpty(Stack_t *s)
 {
@@ -133,6 +134,29 @@ bool Stack_Pop(Stack_t *s, void *dat)
 }
 
 /************************************************************************
+ *功能：获取栈顶元素值，但不弹出
+ *输入：s：栈指针 
+ *		dat:出栈数据
+ *输出：无
+ *返回：TRUE or FALSE
+************************************************************************/
+bool Stack_GetTop(Stack_t *s, void *dat)
+{
+	if(!Stack_IsEmpty(s))
+		return FALSE;
+	if(s->top > -1)//栈非空
+	{
+		//*dat = s->st[s->top];
+		memcpy(dat, (void *)((uint)(s->st) + (s->top)*(s->stlen)), s->stlen);
+		return TRUE;
+	}
+	else
+	{
+		printf("栈空\r\n");
+		return FALSE;
+	}
+}
+/************************************************************************
  *功能：清空栈
  *输入：s：栈指针 
  *输出：无
@@ -150,7 +174,7 @@ bool Stack_Clear(Stack_t *s)
  *输出：无
  *返回：栈中元素个数
 ************************************************************************/
-int Stack_GetTop(Stack_t *s)
+int Stack_GetSize(Stack_t *s)
 {
 	return (s->top)+1;
 }
@@ -273,6 +297,30 @@ bool LinkStack_Pop(LinkStack_t *s, void *dat)
 }
 
 /************************************************************************
+ *功能：获取栈顶元素，不出栈
+ *输入：s：栈指针 
+ *		dat:出栈数据
+ *输出：无
+ *返回：TRUE or FALSE
+************************************************************************/
+bool LinkStack_GetTop(LinkStack_t *s, void *dat)
+{
+	if(!LinkStack_IsEmpty(s))
+		return FALSE;
+	if(s->top != NULL)							//栈非空
+	{
+		//*dat = s->top->data;					//提取元素
+		memcpy(dat, s->top->data, s->datlen);
+		return TRUE;
+	}
+	else
+	{
+		printf("栈空\r\n");
+		return FALSE;
+	}
+}
+
+/************************************************************************
  *功能：清空栈
  *输入：s：栈指针 
  *输出：无
@@ -327,7 +375,7 @@ void testStack(void)
 		if(Stack_Pop(&data, &dat))
 		{
 			printf("data->[%d] = %d\r\n",data.top + 1, dat);	
-			printf("栈中剩余节点数量：%d\r\n",Stack_GetTop(&data));
+			printf("栈中剩余节点数量：%d\r\n",Stack_GetSize(&data));
 
 		}
 	}
