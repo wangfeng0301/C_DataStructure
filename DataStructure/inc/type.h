@@ -8,6 +8,10 @@
 #ifndef TRUE
 #define TRUE			1
 #endif
+
+/* 定义大端，若不是大端则屏蔽 */
+#define BIG_ENDIAN
+
 typedef unsigned char	bool;
 
 typedef unsigned char	uchar;

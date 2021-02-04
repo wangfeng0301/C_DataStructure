@@ -1,5 +1,7 @@
 /*********************************************************************
 *二叉树：
+*二叉搜索树：左子树所有节点小于该节点，右子树所有节点大于该节点
+*			二叉搜索树所有节点值必须唯一；中序周游可得到由小到大序列
 *参考资料：《数据结构与算法》张铭，王腾蛟，赵海燕等
 *wangfeng
 *E-mail:fengwang0301@163.com
@@ -11,31 +13,24 @@
 #include <malloc.h>
 #include <string.h>
 #include "tree_binary.h"
+#include "misc.h"
 
 /************************************************************************/
-/* 创建一个二叉树                                                     
-/* parent:		父节点
-/* leftchild:	左子树
-/* rightchild:	右子树
-/* 返回：		根节点地址
+/* 功能：判断一个二叉树是否为空树                                                     
+/* 输入：tree:二叉树地址
+/* 输出：无
+/* 返回：空，TRUE ；非空，FALSE
 /************************************************************************/
-/*static BinaryTreeNode_t *CreateBinaryTree(BinaryTreeNode_t *parent, BinaryTreeNode_t *leftchild, BinaryTreeNode_t *rightchild, ValueType_t data)
+bool BinaryTree_IsEmpty(BinaryTree_t *tree)
 {
-	BinaryTreeNode_t *temp = (BinaryTreeNode_t *)malloc(sizeof(BinaryTreeNode_t));	//开辟空间
-	if(temp == NULL)
-	{
-		printf("创建失败!\r\n");
-		return NULL;
-	}
-	temp->parent = parent;													//父节点
-	temp->left = leftchild;													//左子节点
-	temp->right = rightchild;												//右子节点
-	temp->val = data;														//数据赋值
+	if(tree->root == NULL)
+		return TRUE;
+	else
+		return FALSE;
+}
 
-	return temp;															//返回的节点地址即根节点
-}*/
 /************************************************************************/
-/* 功能：创建一个二叉树                                                     
+/* 功能：创建一个二叉树
 /* 输入：tree:二叉树地址
 /*		datlen:数据类型长度
 /*		rootdat:根节点数据
@@ -45,119 +40,183 @@
 bool BinaryTree_Create(BinaryTree_t *tree, uint datlen, void *rootdat)
 {
 	BinaryTreeNode_t *root = (BinaryTreeNode_t *)malloc(sizeof(BinaryTreeNode_t));//开辟节点空间
-	root->dat = (void *)malloc(datlen);										//开辟数据空间
+	root->dat = (void *)malloc(datlen);						//开辟数据空间
 	if(root == NULL || root->dat == NULL)
 	{
 		printf("创建失败!\r\n");
 		return FALSE;
 	}
-	memcpy(root->dat, rootdat, datlen);										//数据赋值
+	memcpy(root->dat, rootdat, datlen);						//数据赋值
 	tree->root = root;
 	tree->datlen = datlen;
 	return TRUE;
 }
 
 /************************************************************************/
-/* 填充二叉树，在某节点插入新节点  
-/* parent:父节点，在此节点后插入
-/* currentnode:		当前节点，要插入的节点
-/* LeftRight：	在左子节点插入还是右子节点插入
+/* 功能：在某节点插入新节点
+/* 输入：tree:二叉树地址
+/*		parent:父节点，在此节点后插入
+/*		dat:要插入节点的数据
+/*		LeftRight：在左子节点插入还是右子节点插入
+/* 输出：无
 /* 返回：TRUE 成功；FALSE 失败
 /************************************************************************/
-static bool InsertBinaryTreeNode(BinaryTreeNode_t *parent, BinaryTreeNode_t *currentnode, unsigned char LeftRight)
+bool BinaryTree_InsertNode(BinaryTree_t *tree, BinaryTreeNode_t *parent, void *dat, unsigned char LeftRight)
 {
+	BinaryTreeNode_t *currentnode = NULL;
+
 	if(parent == NULL)
 	{
 		printf("插入节点处为空，无法插入新节点！\r\n");
 		return FALSE;
 	}
+	currentnode = (BinaryTreeNode_t *)malloc(sizeof(BinaryTreeNode_t));
+	currentnode->dat = (void *)malloc(tree->datlen);
+	if(currentnode == NULL || currentnode->dat == NULL)
+	{
+		printf("申请空间失败\r\n");
+		return FALSE;
+	}
+	memcpy(currentnode->dat, dat, tree->datlen);			//赋值
+
 	if(LeftRight == Left)
 	{
 		parent->left->parent = currentnode;
-		currentnode->parent = parent;									//当前节点指向父节点
-		parent->left = currentnode;										//父节点左子节点指向当前节点
+		currentnode->parent = parent;						//当前节点指向父节点
+		parent->left = currentnode;							//父节点左子节点指向当前节点
 	}
 	else if(LeftRight == Right)
 	{
 		parent->right->parent = currentnode;
-		currentnode->parent = parent;									//当前节点指向父节点
-		parent->right = currentnode;									//父节点右子节点指向当前节点
+		currentnode->parent = parent;						//当前节点指向父节点
+		parent->right = currentnode;						//父节点右子节点指向当前节点
 	}
 	return TRUE;	
 }
 
 /*************************************************************************************/
-/*二叉搜索树节点插入算法															 */
-/*root:二叉搜索树的根节点
-/*newpointer:待插入的新节点
-/* 按照输入数据大小，自动选择合适的节点插入。插入后需符合二叉搜索树的特点，即左树小，右树大
+/*功能：二叉搜索树是否为空
+/*输入：tree:二叉搜索树的地址
+/*输出：无
+/*返回：空，TRUE ；非空，FALSE
 /*************************************************************************************/
-void BinarySearchTree_InsertNode(BinaryTreeNode_t *root,BinaryTreeNode_t *newpointer)
+bool BinarySearchTree_IsEmpty(BinaryTree_t *tree)
 {
-	BinaryTreeNode_t *pointer = NULL;
-	if(root == NULL)														//如果是空树
-	{
-		root = newpointer;													//则用指针newpointer作为树根
-		return;
-	}
-	else
-		pointer = root;
-	while(pointer != NULL)
-	{
-		if(newpointer->val.val == pointer->val.val)							//存在相等元素则不插入
-		{
-			printf("存在与插入元素相等的值 %d\r\n",newpointer->val.val);
-			return;
-		}
-		else if(newpointer->val.val < pointer->val.val)						//待插入节点小于当前节点关键码值
-		{
-			if(pointer->left == NULL)										//如果pointer没有左子树
-			{
-				pointer->left = newpointer;									//newpointer作为pointer左子树
-				newpointer->parent = pointer;
-				return;
-			}
-			else
-				pointer = pointer->left;									//向左下降
-		}
-		else if(newpointer->val.val > pointer->val.val)
-		{
-			if(pointer->right == NULL)										//如果pointer没有右子树
-			{
-				pointer->right = newpointer;								//newpointer作为pointer右子树
-				newpointer->parent = pointer;
-				return;
-			}
-			else
-				pointer = pointer->right;									//向右下降
-		}
-	}
+	return BinaryTree_IsEmpty(tree);
 }
 
 /*************************************************************************************/
-/*二叉搜索树查找节点算法															 */
-/*root:二叉搜索树的根节点
-/*data:要查找节点的数据值
-/* 返回：满足数据值的节点地址
+/*功能：创建二叉搜索树
+/*输入：tree:二叉搜索树的地址
+/*输出：无
+/*返回：TRUE or FALSE
 /*************************************************************************************/
-static BinaryTreeNode_t* BinarySearchTree_SearchNode(BinaryTreeNode_t *root, ValueType_t data)
+bool BinarySearchTree_Create(BinaryTree_t *tree, uint datlen, void *rootdat)
+{
+	return BinaryTree_Create(tree, datlen, rootdat);
+}
+
+/*************************************************************************************/
+/*功能：二叉搜索树节点插入算法，按照输入数据大小，自动选择合适的节点插入。
+/*		插入后需符合二叉搜索树的特点，即左树小，右树大
+/*输入：tree:二叉搜索树的地址
+/*		dat:待插入新节点的数据
+/*输出：无
+/*返回：TRUE or FALSE
+/*************************************************************************************/
+bool BinarySearchTree_InsertNode(BinaryTree_t *tree, void *dat)
 {
 	BinaryTreeNode_t *pointer = NULL;
-	if(root == NULL)														//如果是空树
+	BinaryTreeNode_t *newpointer = NULL;
+	long newvalue = 0,pointervalue = 0;
+	uchar i = 0;
+
+	newpointer = (BinaryTreeNode_t *)malloc(sizeof(BinaryTreeNode_t));
+	newpointer->dat = (void *)malloc(tree->datlen);
+	if(newpointer == NULL || newpointer->dat == NULL)
+	{
+		printf("申请空间失败\r\n");
+		return FALSE;
+	}
+	memcpy(newpointer->dat, dat, tree->datlen);
+	/* 若树为空，则新节点作为树根,否则记录根节点 */
+	if(tree->root == NULL)
+	{
+		tree->root = newpointer;
+		return TRUE;
+	}
+	else
+		pointer = tree->root;
+	while(pointer != NULL)
+	{
+		newvalue = void2long(newpointer->dat, tree->datlen);
+		pointervalue = void2long(pointer->dat, tree->datlen);
+		if(newvalue == pointervalue)						//存在相等元素则不插入
+		{
+			printf("存在与插入元素相等的值 %d\r\n",newpointer->dat);
+			goto err;
+		}
+		else if(newvalue < pointervalue)					//待插入节点小于当前节点关键码值
+		{
+			if(pointer->left == NULL)						//如果pointer没有左子树
+			{
+				pointer->left = newpointer;					//newpointer作为pointer左子树
+				newpointer->parent = pointer;
+				return TRUE;
+			}
+			else
+				pointer = pointer->left;					//向左下降
+		}
+		else if(newvalue > pointervalue)
+		{
+			if(pointer->right == NULL)						//如果pointer没有右子树
+			{
+				pointer->right = newpointer;				//newpointer作为pointer右子树
+				newpointer->parent = pointer;
+				return TRUE;
+			}
+			else
+				pointer = pointer->right;					//向右下降
+		}
+	}
+err:
+	free(newpointer->dat);
+	newpointer->dat = NULL;
+	free(newpointer);
+	newpointer = NULL;
+	return FALSE;
+}
+
+/*************************************************************************************/
+/*功能：二叉搜索树查找节点算法
+/*输入：tree:二叉搜索树的地址
+/*		dat:要查找节点的数据的指针
+/*输出：
+/*返回：满足数据值的节点地址
+/*************************************************************************************/
+BinaryTreeNode_t* BinarySearchTree_SearchNode(BinaryTree_t *tree, void *dat)
+{
+	BinaryTreeNode_t *pointer = NULL;
+	uchar i = 0;
+	long datvalue = 0,pointervalue = 0;
+
+	if(BinarySearchTree_IsEmpty(tree))						//如果是空树
 	{
 		printf("二叉树为空！\r\n");
 		return NULL;
 	}
 	else
-		pointer = root;
+		pointer = tree->root;
 	while(pointer != NULL)
 	{
-		if(data.val == pointer->val.val)									
+		datvalue = void2long(dat, tree->datlen);
+		pointervalue = void2long(pointer->dat, tree->datlen);
+		if(datvalue == pointervalue)									
 		{
-			printf("找到： %d\r\n",pointer->val.val);
+			printf("找到： %d\r\n",pointervalue);
 			return pointer;
 		}
-		else if(data.val < pointer->val.val)								//要查找的值小于当前节点值，向左查找
+		else if(datvalue < pointervalue)				//要查找的值小于当前节点值，向左查找
 		{
 			if(pointer->left == NULL)										
 			{
@@ -165,120 +224,116 @@ static BinaryTreeNode_t* BinarySearchTree_SearchNode(BinaryTreeNode_t *root, Val
 				return NULL;
 			}
 			else
-				pointer = pointer->left;									//向左下降
+				pointer = pointer->left;				//向左下降
 		}
-		else if(data.val > pointer->val.val)								//要查找的值大于当前节点值，向右查找
+		else if(datvalue > pointervalue)				//要查找的值大于当前节点值，向右查找
 		{
-			if(pointer->right == NULL)										//如果pointer没有右子树
+			if(pointer->right == NULL)					//如果pointer没有右子树
 			{
 				printf("此二叉树中不存在此值！\r\n");
 				return NULL;
 			}
 			else
-				pointer = pointer->right;									//向右下降
+				pointer = pointer->right;				//向右下降
 		}
 	}
 }
 
 /*************************************************************************************/
-/*二叉搜索树节点删除算法															 
-/*pointer:待删除节点
+/*功能：二叉搜索树节点删除算法															 
+/*输入：tree:搜索二叉树地址
+/*		pointer:待删除节点
+/*输出：无
+/*返回：TRUE or FALSE
 /*************************************************************************************/
-void BinarySearchTree_DeleteNode(BinaryTreeNode_t *pointer)
+bool BinarySearchTree_DeleteNode(BinaryTree_t *tree, BinaryTreeNode_t *pointer)
 {
-	BinaryTreeNode_t *temppointer;											//用于保存替换被删除节点的节点
-	BinaryTreeNode_t *tempparent = NULL;									//用于保存替换节点的父节点
-	if(pointer == NULL)														//待删除节点不存在
+	BinaryTreeNode_t *temppointer;							//用于保存替换被删除节点的节点
+	BinaryTreeNode_t *tempparent = NULL;					//用于保存替换节点的父节点
+	if(pointer == NULL)										//待删除节点不存在
 	{
 		printf("节点不存在！\r\n");
-		return;
+		return FALSE;
 	}
-	if(pointer->left == NULL)												//如果待删除节点左子树为空
-		temppointer = pointer->right;										//替换节点赋值为其右子树
-	else																	//替换节点左子树不为空，在左子树中寻找最大节点作为替换节点
+	if(pointer->left == NULL)								//如果待删除节点左子树为空
+		temppointer = pointer->right;						//替换节点赋值为其右子树
+	else													//替换节点左子树不为空，在左子树中寻找最大节点作为替换节点
 	{
-		temppointer = pointer->left;										//替换节点赋值为左子树
-		while(temppointer->right != NULL)									//寻找左子树中最大节点，向右路下降即可
+		temppointer = pointer->left;						//替换节点赋值为左子树
+		while(temppointer->right != NULL)					//寻找左子树中最大节点，向右路下降即可
 		{
-			tempparent = temppointer;										//保存替换节点的父节点
-			temppointer = temppointer->right;								//向右下降
+			tempparent = temppointer;						//保存替换节点的父节点
+			temppointer = temppointer->right;				//向右下降
 		}
-		if(tempparent == NULL)												//如果替换节点就是被删除节点的左子节点，则不会进入上面的while循环
-			pointer->left = temppointer->left;								//替换节点左子树挂接到被删除节点的左子树
+		if(tempparent == NULL)								//如果替换节点就是被删除节点的左子节点，则不会进入上面的while循环
+			pointer->left = temppointer->left;				//替换节点左子树挂接到被删除节点的左子树
 		else
-			tempparent->right = temppointer->left;							//替换节点的左子树作为其父节点的右子树
-		temppointer->left = pointer->left;									//继承pointer左子树
-		temppointer->right = pointer->right;								//继承pointer的右子树
-		temppointer->parent = pointer->parent;								//继承pointer的父节点
+			tempparent->right = temppointer->left;			//替换节点的左子树作为其父节点的右子树
+		temppointer->left = pointer->left;					//继承pointer左子树
+		temppointer->right = pointer->right;				//继承pointer的右子树
+		temppointer->parent = pointer->parent;				//继承pointer的父节点
 	}
 
 	//下面用替换节点代替待删除节点
-	if(pointer->parent == NULL)												//被删除节点为根节点
+	if(pointer->parent == NULL)								//被删除节点为根节点
 		temppointer->parent = NULL;
-	else if(pointer->parent->left == pointer)								//被删除节点挂在其父节点的左子树
+	else if(pointer->parent->left == pointer)				//被删除节点挂在其父节点的左子树
 		pointer->parent->left = temppointer;
-	else																	//被删除节点挂在其父节点的右子树
-		pointer->parent->right = temppointer;								
+	else													//被删除节点挂在其父节点的右子树
+		pointer->parent->right = temppointer;				
 
-	free(pointer);															//释放节点内存
+	free(pointer->dat);
+	pointer->dat = NULL;
+	free(pointer);											//释放节点内存
 	pointer = NULL;
-	return ;
+	return TRUE;
 }
 
 /************************************************************************/
 /* 访问当前节点内容                                                     */
 /* cunrrentnode:当前节点
+/* tree:二叉树地址
 /************************************************************************/
-void visit(BinaryTreeNode_t *currentnode)
+void visit(BinaryTree_t *tree, BinaryTreeNode_t *currentnode)
 {
-	printf("%d ",currentnode->val.val);
-}
-/************************************************************************/
-/* 判空二叉树                                                           */
-/* root:二叉树根节点
-/************************************************************************/
-bool isEmpty_BinaryTree(BinaryTreeNode_t *root)
-{
-	if(root != NULL)
-		return FALSE;
-	else
-		return TRUE;
+	long value = void2long(currentnode->dat, tree->datlen);
+	printf("%d ",value);
 }
 
 /************************************************************************/
 /* 前序周游二叉树                                                       */
 /************************************************************************/
-void PreOrder(BinaryTreeNode_t *root)
+void PreOrder(BinaryTree_t *tree, BinaryTreeNode_t *root)
 {
 	if(root != NULL)
 	{
-		visit(root);				//访问当前节点
-		PreOrder(root->left);		//前序周游左子树
-		PreOrder(root->right);		//前序周游右子树
+		visit(tree, root);				//访问当前节点
+		PreOrder(tree, root->left);		//前序周游左子树
+		PreOrder(tree, root->right);		//前序周游右子树
 	}
 }
 /************************************************************************/
 /* 中序周游二叉树                                                       */
 /************************************************************************/
-void InOrder(BinaryTreeNode_t *root)
+void InOrder(BinaryTree_t *tree, BinaryTreeNode_t *root)
 {
 	if(root != NULL)
 	{
-		InOrder(root->left);		//中序周游左子树
-		visit(root);				//访问当前节点
-		InOrder(root->right);		//中序周游右子树
+		InOrder(tree, root->left);		//中序周游左子树
+		visit(tree, root);				//访问当前节点
+		InOrder(tree, root->right);		//中序周游右子树
 	}
 }
 /************************************************************************/
 /* 后序周游二叉树                                                       */
 /************************************************************************/
-void PostOrder(BinaryTreeNode_t *root)
+void PostOrder(BinaryTree_t *tree, BinaryTreeNode_t *root)
 {
 	if(root != NULL)
 	{
-		PostOrder(root->left);		//后序周游左子树
-		PostOrder(root->right);		//后序周游右子树
-		visit(root);				//访问当前节点
+		PostOrder(tree, root->left);		//后序周游左子树
+		PostOrder(tree, root->right);		//后序周游右子树
+		visit(tree, root);				//访问当前节点
 	}
 }
 

@@ -26,7 +26,13 @@ typedef struct
 	uint datlen;					//节点数据类型长度
 }BinaryTree_t;
 
-bool BinaryTree_Create(BinaryTree_t *tree, uint datlen);
+bool BinaryTree_IsEmpty(BinaryTree_t *tree);
+bool BinaryTree_Create(BinaryTree_t *tree, uint datlen, void *rootdat);
+bool BinaryTree_InsertNode(BinaryTree_t *tree, BinaryTreeNode_t *parent, void *dat, unsigned char LeftRight);
+
+bool BinarySearchTree_InsertNode(BinaryTree_t *tree, void *dat);
+BinaryTreeNode_t* BinarySearchTree_SearchNode(BinaryTree_t *tree, void *dat);
+bool BinarySearchTree_DeleteNode(BinaryTree_t *tree, BinaryTreeNode_t *pointer);
 
 void LevelOrder(BinaryTreeNode_t *root);//广度周游二叉树
 void testBinaryTree(void);
