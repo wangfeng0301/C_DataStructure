@@ -144,7 +144,7 @@ static bool InfixExp2PostfixExp(char *infix, Postfix_t *postfix)
 		else if(infix[i] == ')')
 		{
 			/* 3.1 栈若为空，括号不匹配 */
-			if(!Stack_IsEmpty(&s))
+			if(Stack_IsEmpty(&s))
 			{
 				Stack_Destroy(&s);
 				printf("括号不匹配\r\n");
@@ -153,7 +153,7 @@ static bool InfixExp2PostfixExp(char *infix, Postfix_t *postfix)
 			/* 3.2 栈若非空，依次弹出栈中元素，直到遇到第一个开括号 */
 			else
 			{
-				while(Stack_IsEmpty(&s))
+				while(!Stack_IsEmpty(&s))
 				{
 					if(!Stack_Pop(&s, &ch[0]))
 						break;
@@ -170,7 +170,7 @@ static bool InfixExp2PostfixExp(char *infix, Postfix_t *postfix)
 					}
 				}
 				/* 3.2.1 栈空了还没有遇到开括号，则括号不匹配 */
-				if(!Stack_IsEmpty(&s) && ch[0] != 0)
+				if(Stack_IsEmpty(&s) && ch[0] != 0)
 				{
 					Stack_Destroy(&s);
 					printf("括号不匹配\r\n");
@@ -183,7 +183,7 @@ static bool InfixExp2PostfixExp(char *infix, Postfix_t *postfix)
 		else if(infix[i] == '+' || infix[i] == '-' || infix[i] == '*' || infix[i] == '/')
 		{
 			/* 4.1 当栈非空 && 栈顶不是开括号 && 栈顶运算符优先级不低于输入的运算符优先级，弹出栈顶放到后缀表达式中 */
-			while(Stack_IsEmpty(&s))
+			while(!Stack_IsEmpty(&s))
 			{
 				Stack_GetTop(&s, &ch[0]);
 				if(ch[0] != '(' && OperatorPriority(ch[0]) >= OperatorPriority(infix[i]))
@@ -211,7 +211,7 @@ static bool InfixExp2PostfixExp(char *infix, Postfix_t *postfix)
 		}
 	}
 	/* 5. 扫描完，出栈所有元素 */
-	while(Stack_IsEmpty(&s))
+	while(!Stack_IsEmpty(&s))
 	{
 		Stack_Pop(&s, &ch[0]);
 		if(ch[0] != '(')
@@ -289,7 +289,7 @@ bool Calculator(Postfix_t *postfix, int *result)
 	}
 	if(!Stack_Pop(&s, result))//最终结果出栈
 		goto err;
-	if(Stack_IsEmpty(&s))
+	if(!Stack_IsEmpty(&s))
 	{
 		printf("出错,运算后栈非空\r\n");
 		goto err;
@@ -500,7 +500,7 @@ unsigned char nonRecknapOpt(int s,int n, int* w)
 	tmp.rd = rd1;
 	LinkStack_Push(&knap, &tmp);							//将初始化的节点地址压入栈
 
-	while(LinkStack_IsEmpty(&knap))
+	while(!LinkStack_IsEmpty(&knap))
 	{
 		t = knap.size;										//获取栈的大小
 		LinkStack_GetTop(&knap,&tmp);						//获取栈顶元素，但不弹出
@@ -522,7 +522,7 @@ unsigned char nonRecknapOpt(int s,int n, int* w)
 			LinkStack_GetTop(&knap, &tmp);
 		}
 		
-		while(LinkStack_IsEmpty(&knap))						//返回处理
+		while(!LinkStack_IsEmpty(&knap))					//返回处理
 		{
 			LinkStack_Pop(&knap, &tmp);						//读出栈顶元素
 			t = knap.size;

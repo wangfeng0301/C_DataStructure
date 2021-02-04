@@ -9,6 +9,7 @@
 *2019.11.28-2021.2.3
 *2021.2.2   修改，不受数据类型限制
 *2021.2.3	增加，Stack_GetTop和LinkStack_GetTop
+*2021.2.4	修改，栈空和满的返回状态。满或空返回TRUE,非满非空返回FALSE
 **********************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
@@ -53,31 +54,31 @@ bool Stack_IsExist(Stack_t *s)
  *功能：判断栈是否空
  *输入：s：栈指针 
  *输出：无
- *返回：栈空返回FALSE;非空返回TRUE
+ *返回：栈空返回TRUE;非空返回FALSE
 ************************************************************************/
 bool Stack_IsEmpty(Stack_t *s)
 {
 	if(Stack_IsExist(s))
 	{
 		if(s->top > (-1))
-			return TRUE;
+			return FALSE;
 		else
 			printf("栈空\r\n");
 	}
-	return FALSE;
+	return TRUE;
 }
 /************************************************************************
  *功能：判断栈是否满
  *输入：s：栈指针 
  *输出：无
- *返回：TRUE or FALSE
+ *返回：满TRUE， 未满FALSE
 ************************************************************************/
 bool Stack_IsFull(Stack_t *s)
 {
 	if(Stack_IsExist(s))
 	{
 		if(s->top < s->size-1)//栈顶小于栈的最大个数
-			return TRUE;
+			return FALSE;
 		else
 			printf("栈满\r\n");
 	}
@@ -92,7 +93,7 @@ bool Stack_IsFull(Stack_t *s)
 ************************************************************************/
 bool Stack_Push(Stack_t *s, void *dat)
 {
-	if(!Stack_IsFull(s))
+	if(Stack_IsFull(s))
 		return FALSE;
 	if(s->top < s->size-1)//栈顶小于栈的最大个数
 	{
@@ -117,7 +118,7 @@ bool Stack_Push(Stack_t *s, void *dat)
 ************************************************************************/
 bool Stack_Pop(Stack_t *s, void *dat)
 {
-	if(!Stack_IsEmpty(s))
+	if(Stack_IsEmpty(s))
 		return FALSE;
 	if(s->top > -1)//栈非空
 	{
@@ -142,7 +143,7 @@ bool Stack_Pop(Stack_t *s, void *dat)
 ************************************************************************/
 bool Stack_GetTop(Stack_t *s, void *dat)
 {
-	if(!Stack_IsEmpty(s))
+	if(Stack_IsEmpty(s))
 		return FALSE;
 	if(s->top > -1)//栈非空
 	{
@@ -203,15 +204,15 @@ bool Stack_Destroy(Stack_t *s)
  *功能：判断栈是否空
  *输入：s：栈指针 
  *输出：无
- *返回：TRUE or FALSE
+ *返回：空TRUE，非空FALSE
 ************************************************************************/
 bool LinkStack_IsEmpty(LinkStack_t *s)
 {
 	if(s->size > 0)
-		return TRUE;
+		return FALSE;
 	else
 		printf("栈空\r\n");
-	return FALSE;
+	return TRUE;
 }
 /************************************************************************
  *功能：创建栈,链式栈不用提前开辟大小，可以在压栈时动态开辟空间
@@ -274,7 +275,7 @@ bool LinkStack_Pop(LinkStack_t *s, void *dat)
 {
 	LinkStackNode_t *tempNode;					//临时节点
 
-	if(!LinkStack_IsEmpty(s))
+	if(LinkStack_IsEmpty(s))
 		return FALSE;
 	if(s->top != NULL)							//栈非空
 	{
@@ -305,7 +306,7 @@ bool LinkStack_Pop(LinkStack_t *s, void *dat)
 ************************************************************************/
 bool LinkStack_GetTop(LinkStack_t *s, void *dat)
 {
-	if(!LinkStack_IsEmpty(s))
+	if(LinkStack_IsEmpty(s))
 		return FALSE;
 	if(s->top != NULL)							//栈非空
 	{
@@ -330,7 +331,7 @@ bool LinkStack_Clear(LinkStack_t *s)
 {
 	LinkStackNode_t *temp;
 
-	if(!LinkStack_IsEmpty(s))
+	if(LinkStack_IsEmpty(s))
 		return FALSE;
 	while(s->top != 0)
 	{

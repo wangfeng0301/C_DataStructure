@@ -17,8 +17,8 @@
 long void2long(void *dat, uchar datlen)
 {
 	uchar i;
-	long ret;
-	for(i = 0;i < tree->datlen; i++)//数据类型转换
+	long ret = 0;
+	for(i = 0;i < datlen; i++)//数据类型转换
 	{
 #ifdef BIG_ENDIAN
 		ret += (*(long *)((uint)dat+i)) << (datlen-1-i)*8;
@@ -26,4 +26,5 @@ long void2long(void *dat, uchar datlen)
 		ret += (*(long *)((uint)dat+datlen-1-i)) << (datlen-1-i)*8;
 #endif
 	}
+	return ret;
 }

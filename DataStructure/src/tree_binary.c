@@ -7,12 +7,15 @@
 *E-mail:fengwang0301@163.com
 *CSDN:https://blog.csdn.net/u013073067?spm=1001.2101.3001.5343
 *GitHub:https://github.com/wangfeng0301
-*2019.11.28-2021.2.3
+*2019.11.28-2021.2.4
+*2021.2.4	修改，二叉树不受数据类型限制
 **********************************************************************/
 #include <stdio.h>
 #include <malloc.h>
 #include <string.h>
 #include "tree_binary.h"
+#include "stack.h"
+#include "queue.h"
 #include "misc.h"
 
 /************************************************************************/
@@ -48,6 +51,9 @@ bool BinaryTree_Create(BinaryTree_t *tree, uint datlen, void *rootdat)
 	}
 	memcpy(root->dat, rootdat, datlen);						//数据赋值
 	tree->root = root;
+	tree->root->left = NULL;
+	tree->root->right = NULL;
+	tree->root->parent = NULL;
 	tree->datlen = datlen;
 	return TRUE;
 }
@@ -60,8 +66,9 @@ bool BinaryTree_Create(BinaryTree_t *tree, uint datlen, void *rootdat)
 /*		LeftRight：在左子节点插入还是右子节点插入
 /* 输出：无
 /* 返回：TRUE 成功；FALSE 失败
+/* 未调试通过
 /************************************************************************/
-bool BinaryTree_InsertNode(BinaryTree_t *tree, BinaryTreeNode_t *parent, void *dat, unsigned char LeftRight)
+/*bool BinaryTree_InsertNode(BinaryTree_t *tree, BinaryTreeNode_t *parent, void *dat, unsigned char LeftRight)
 {
 	BinaryTreeNode_t *currentnode = NULL;
 
@@ -79,21 +86,213 @@ bool BinaryTree_InsertNode(BinaryTree_t *tree, BinaryTreeNode_t *parent, void *d
 	}
 	memcpy(currentnode->dat, dat, tree->datlen);			//赋值
 
-	if(LeftRight == Left)
+	//if(LeftRight == Left)
 	{
 		parent->left->parent = currentnode;
 		currentnode->parent = parent;						//当前节点指向父节点
 		parent->left = currentnode;							//父节点左子节点指向当前节点
 	}
-	else if(LeftRight == Right)
+	//else if(LeftRight == Right)
 	{
 		parent->right->parent = currentnode;
 		currentnode->parent = parent;						//当前节点指向父节点
 		parent->right = currentnode;						//父节点右子节点指向当前节点
 	}
 	return TRUE;	
+}*/
+
+/************************************************************************/
+/* 访问当前节点内容                                                     */
+/* tree:二叉树地址
+/* cunrrentnode:当前节点
+/* tree:二叉树地址
+/************************************************************************/
+void visit(BinaryTree_t *tree, BinaryTreeNode_t *currentnode)
+{
+	long value = void2long(currentnode->dat, tree->datlen);
+	printf("%d ",value);
 }
 
+/************************************************************************/
+/* 前序周游二叉树                                                       */
+/************************************************************************/
+void BinaryTree_PreOrder(BinaryTree_t *tree, BinaryTreeNode_t *root)
+{
+	if(root != NULL)
+	{
+		visit(tree, root);							//访问当前节点
+		BinaryTree_PreOrder(tree, root->left);		//前序周游左子树
+		BinaryTree_PreOrder(tree, root->right);		//前序周游右子树
+	}
+}
+/************************************************************************/
+/* 中序周游二叉树                                                       */
+/************************************************************************/
+void BinaryTree_InOrder(BinaryTree_t *tree, BinaryTreeNode_t *root)
+{
+	if(root != NULL)
+	{
+		BinaryTree_InOrder(tree, root->left);		//中序周游左子树
+		visit(tree, root);							//访问当前节点
+		BinaryTree_InOrder(tree, root->right);		//中序周游右子树
+	}
+}
+/************************************************************************/
+/* 后序周游二叉树                                                       */
+/************************************************************************/
+void BinaryTree_PostOrder(BinaryTree_t *tree, BinaryTreeNode_t *root)
+{
+	if(root != NULL)
+	{
+		BinaryTree_PostOrder(tree, root->left);		//后序周游左子树
+		BinaryTree_PostOrder(tree, root->right);	//后序周游右子树
+		visit(tree, root);							//访问当前节点
+	}
+}
+/************************************************************************/
+/* 前序周游二叉树,非递归方法                                            */
+/************************************************************************/
+void BinaryTree_PreOrderNonRecursion(BinaryTree_t *tree, BinaryTreeNode_t *root)
+{
+	BinaryTreeNode_t *pointer = root;
+	BinaryTreeNode_t pointertemp;
+	LinkStack_t temp;									//定义栈变量
+	LinkStack_Create(&temp, sizeof(BinaryTreeNode_t));	//创建栈
+
+	while(pointer || !LinkStack_IsEmpty(&temp))			//栈非空
+	{
+		visit(tree, pointer);							//访问当前节点
+		if(pointer->right != NULL)						//非空右子节点入栈
+			LinkStack_Push(&temp, pointer->right);
+		if(pointer->left != NULL)						
+			pointer = pointer->left;					//左路下降
+		else
+		{
+			if(LinkStack_Pop(&temp, &pointertemp))		//栈顶元素退栈
+				pointer = pointertemp.parent->right;	//被压栈的是右节点
+			else
+				pointer = NULL;
+		}
+	}
+	LinkStack_Destroy(&temp);
+}
+/************************************************************************/
+/* 中序周游二叉树,非递归方法                                            */
+/************************************************************************/
+void BinaryTree_InOrderNonRecursion(BinaryTree_t *tree, BinaryTreeNode_t *root)
+{
+	BinaryTreeNode_t *pointer = root;
+	BinaryTreeNode_t pointertemp;
+	LinkStack_t temp;									//定义栈变量
+	LinkStack_Create(&temp, sizeof(BinaryTreeNode_t));	//创建栈
+
+	while(pointer || !LinkStack_IsEmpty(&temp))			//栈非空
+	{
+		if(pointer)
+		{
+			LinkStack_Push(&temp, pointer);
+			pointer = pointer->left;					//左路下降
+		}
+		else
+		{
+			if(LinkStack_Pop(&temp, &pointertemp))		//栈顶元素退栈
+			{
+				visit(tree, &pointertemp);				//访问当前节点
+				pointer = pointertemp.right;			//指针指向右子节点
+			}
+			else
+				pointer = NULL;
+		}
+	}
+	LinkStack_Destroy(&temp);
+}
+/************************************************************************/
+/* 后序周游二叉树,非递归方法                                            */
+/************************************************************************/
+void BinaryTree_PostOrderNonRecursion(BinaryTree_t *tree, BinaryTreeNode_t *root)
+{
+	BinaryTreeNode_t *pointer = root;
+	BinaryTreeNode_t *q = NULL;
+	BinaryTreeNode_t pointertemp;
+	LinkStack_t temp;									//定义栈变量
+	LinkStack_Create(&temp, sizeof(BinaryTreeNode_t));	//创建栈
+	if(root == NULL)									//空树则返回
+		return;
+	else
+		pointer = root;
+	while(pointer || !LinkStack_IsEmpty(&temp))			//栈非空
+	{
+		while(pointer != NULL)							//如果当前指针非空，则压栈并下降到最左子节点
+		{					
+			LinkStack_Push(&temp, pointer);				
+			pointer = pointer->left;					//从左路下降
+		}
+		LinkStack_GetTop(&temp, &pointertemp);			//左路下降到底，取栈顶元素
+		if(pointertemp.parent == NULL)					//考虑根节点父节点为空的情况
+			pointer = root;
+		else if(pointertemp.parent->left)				//考虑栈顶节点父节点无左节点的情况，则必然栈顶节点必然是父节点的右节点
+			pointer = pointertemp.parent->left;			
+		else
+			pointer = pointertemp.parent->right;
+		if(pointer->right == NULL || pointer->right == q)//从右子树返回
+		{
+			visit(tree, pointer);
+			/* 1.如果取出的节点右节点为空（对应页节点的情况） */
+			/* 2.如果取出的节点右节点等于q（对应右子节点已经遍历过的情况） */
+			/* 上述两种情况都需要将本节点弹出栈 */
+			LinkStack_Pop(&temp, &pointertemp);				
+			q = pointer;
+			pointer = NULL;
+		}
+		else											//如果从右子树返回
+		{
+			pointer = pointer->right;					//从左子树返回，访问右子树
+		}
+	}
+	LinkStack_Destroy(&temp);
+}
+/************************************************************************/
+/* 广度周游二叉树                                                       */
+/************************************************************************/
+void BinaryTree_LevelOrder(BinaryTree_t *tree, BinaryTreeNode_t *root)
+{
+	BinaryTreeNode_t *pointer = root;
+	BinaryTreeNode_t pointertemp, *q = NULL;
+	LinkQueue_t queue;
+	LinkQueue_Create(&queue, sizeof(BinaryTreeNode_t));	//创建队列
+	if(pointer != NULL)
+	{
+		LinkQueue_En(&queue, pointer);					//根节点入队列
+	}
+	while(!LinkQueue_IsEmpty(&queue))					//队列非空
+	{
+		LinkQueue_De(&queue, &pointertemp);
+		/* 由于LinkQueue_De弹出数据不包含节点本身地址信息 */
+		/* 所以要判断出弹出节点的地址，以便后续循环 */
+		if(pointertemp.parent == NULL)					//考虑出队列节点是根节点的情况
+			pointer = root;
+		/* q保存左子节点 */
+		/* 还要考虑节点没有左节点的情况 */
+		else if(pointertemp.parent->left == q || pointertemp.parent->left == NULL)
+		{
+			pointer = pointertemp.parent->right;
+			q = NULL;
+		}
+		else
+		{
+			pointer = pointertemp.parent->left;
+			q = pointer;
+		}
+		visit(tree, pointer);							//访问当前节点
+		if(pointer->left != NULL)
+			LinkQueue_En(&queue,pointer->left);			//左子树进队列
+		if(pointer->right != NULL)
+			LinkQueue_En(&queue,pointer->right);		//右子树进队列
+	}
+	LinkQueue_Destroy(&queue);
+}
+
+/******************************************** 二叉搜索树 *******************************************************/
 /*************************************************************************************/
 /*功能：二叉搜索树是否为空
 /*输入：tree:二叉搜索树的地址
@@ -128,6 +327,7 @@ bool BinarySearchTree_InsertNode(BinaryTree_t *tree, void *dat)
 {
 	BinaryTreeNode_t *pointer = NULL;
 	BinaryTreeNode_t *newpointer = NULL;
+	BinaryTreeNode_t *temp;
 	long newvalue = 0,pointervalue = 0;
 	uchar i = 0;
 
@@ -139,6 +339,9 @@ bool BinarySearchTree_InsertNode(BinaryTree_t *tree, void *dat)
 		return FALSE;
 	}
 	memcpy(newpointer->dat, dat, tree->datlen);
+	newpointer->left = NULL;
+	newpointer->right = NULL;
+	newpointer->parent = NULL;
 	/* 若树为空，则新节点作为树根,否则记录根节点 */
 	if(tree->root == NULL)
 	{
@@ -160,8 +363,10 @@ bool BinarySearchTree_InsertNode(BinaryTree_t *tree, void *dat)
 		{
 			if(pointer->left == NULL)						//如果pointer没有左子树
 			{
+				temp = pointer->left;
 				pointer->left = newpointer;					//newpointer作为pointer左子树
 				newpointer->parent = pointer;
+				newpointer->left = temp;
 				return TRUE;
 			}
 			else
@@ -171,8 +376,10 @@ bool BinarySearchTree_InsertNode(BinaryTree_t *tree, void *dat)
 		{
 			if(pointer->right == NULL)						//如果pointer没有右子树
 			{
+				temp = pointer->right;
 				pointer->right = newpointer;				//newpointer作为pointer右子树
 				newpointer->parent = pointer;
+				newpointer->right = temp;
 				return TRUE;
 			}
 			else
@@ -237,6 +444,8 @@ BinaryTreeNode_t* BinarySearchTree_SearchNode(BinaryTree_t *tree, void *dat)
 				pointer = pointer->right;				//向右下降
 		}
 	}
+	printf("此二叉树中不存在此值！\r\n");
+	return NULL;
 }
 
 /*************************************************************************************/
@@ -288,383 +497,99 @@ bool BinarySearchTree_DeleteNode(BinaryTree_t *tree, BinaryTreeNode_t *pointer)
 	pointer = NULL;
 	return TRUE;
 }
-
-/************************************************************************/
-/* 访问当前节点内容                                                     */
-/* cunrrentnode:当前节点
-/* tree:二叉树地址
-/************************************************************************/
-void visit(BinaryTree_t *tree, BinaryTreeNode_t *currentnode)
-{
-	long value = void2long(currentnode->dat, tree->datlen);
-	printf("%d ",value);
-}
-
 /************************************************************************/
 /* 前序周游二叉树                                                       */
 /************************************************************************/
-void PreOrder(BinaryTree_t *tree, BinaryTreeNode_t *root)
+void BinarySearchTree_PreOrder(BinaryTree_t *tree, BinaryTreeNode_t *root)
 {
-	if(root != NULL)
-	{
-		visit(tree, root);				//访问当前节点
-		PreOrder(tree, root->left);		//前序周游左子树
-		PreOrder(tree, root->right);		//前序周游右子树
-	}
+	BinaryTree_PreOrder(tree, root);
 }
 /************************************************************************/
 /* 中序周游二叉树                                                       */
 /************************************************************************/
-void InOrder(BinaryTree_t *tree, BinaryTreeNode_t *root)
+void BinarySearchTree_InOrder(BinaryTree_t *tree, BinaryTreeNode_t *root)
 {
-	if(root != NULL)
-	{
-		InOrder(tree, root->left);		//中序周游左子树
-		visit(tree, root);				//访问当前节点
-		InOrder(tree, root->right);		//中序周游右子树
-	}
+	BinaryTree_InOrder(tree, root);
 }
 /************************************************************************/
 /* 后序周游二叉树                                                       */
 /************************************************************************/
-void PostOrder(BinaryTree_t *tree, BinaryTreeNode_t *root)
+void BinarySearchTree_PostOrder(BinaryTree_t *tree, BinaryTreeNode_t *root)
 {
-	if(root != NULL)
-	{
-		PostOrder(tree, root->left);		//后序周游左子树
-		PostOrder(tree, root->right);		//后序周游右子树
-		visit(tree, root);				//访问当前节点
-	}
-}
-
-////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////
-/***************************非递归方法深度周游二叉树*************************************/
-/*链表节点结构体*/
-typedef struct LinkNode_BinaryTree
-{
-	BinaryTreeNode_t *node;						//二叉树节点指针
-	struct LinkNode_BinaryTree* next;
-}LinkNode_BinaryTree;
-
-/*链表栈结构体*/
-typedef struct
-{
-	LinkNode_BinaryTree *top;					//指向栈顶
-	int size;
-}LinkStack_BinaryTree;
-
-/************************************************************************/
-/* 创建栈                                                     */
-/* size:栈的大小
-/************************************************************************/
-static void CreateLinkStack_BinaryTree(LinkStack_BinaryTree *s)
-{
-	s->size = 0;	//初始化为空栈
-	s->top = NULL;	//指向空
-}
-/************************************************************************/
-/* 压栈                                                     */
-/* s：二叉树链式栈首地址
-/* node: 要插入的二叉树节点
-/************************************************************************/
-static void LSpush_BinaryTree(LinkStack_BinaryTree *s,BinaryTreeNode_t *node)//向链首插入节点，作为后入节点
-{
-	LinkNode_BinaryTree *temp = (LinkNode_BinaryTree *)malloc(sizeof(LinkNode_BinaryTree));//开辟空间,大小为LinkNode_BinaryTree
-	if(s->top == NULL)				//第一个压栈的元素
-	{
-		s->top = temp;				//栈顶指向当前空间
-		s->top->next = NULL;
-	}
-	else
-	{
-		temp->next = s->top;		//新建节点指向之前的节点，相当于在之前节点插入了新节点
-		s->top = temp;
-	}
-	s->top->node = node;			//二叉树节点地址赋值
-	s->size++;						//栈大小加1
-}
-
-/************************************************************************/
-/* 出栈
-/* s：二叉树链式栈首地址
-/* 返回：栈顶的二叉树节点地址
-/************************************************************************/
-static BinaryTreeNode_t *LSpop_BinaryTree(LinkStack_BinaryTree *s)
-{
-	BinaryTreeNode_t *temp=NULL;				//二叉树节点指针
-	LinkNode_BinaryTree *tempNode=NULL;		//临时栈节点
-	if(s->top != NULL)						//栈非空
-	{
-		temp = s->top->node;				//提取元素
-		tempNode = s->top;					//当前节点给临时节点
-		s->top = s->top->next;				//指向下一个节点
-		free(tempNode);
-		tempNode = NULL;
-		s->size--;							//栈大小减1
-
-		return temp;						//返回二叉树节点指针
-	}
-	else
-	{
-		printf("栈空\r\n");
-		return NULL;
-	}
-}
-/************************************************************************/
-/* 判空栈
-/************************************************************************/
-static bool isStackEmpty_BinaryTree(LinkStack_BinaryTree *s)
-{
-	if(s->top != NULL)				//栈非空返回0
-	{
-		return FALSE;
-	}
-	else
-	{
-		printf("栈空\r\n");			//栈空返回1
-		return TRUE;
-	}
-}
-
-/************************************************************************/
-/* 清除栈
-/************************************************************************/
-static void LSclear_Binary(LinkStack_BinaryTree *s)
-{
-	LinkNode_BinaryTree *temp=NULL;
-	while(s->top != NULL)
-	{
-		temp = s->top->next;
-		free(s->top);
-		s->top = temp;
-	}
-	if(s->top == NULL)
-	{
-		s->size = 0;
-		printf("清栈成功！\r\n");
-	}
+	BinaryTree_PostOrder(tree, root);
 }
 /************************************************************************/
 /* 前序周游二叉树,非递归方法                                            */
 /************************************************************************/
-void PreOrderWithoutRecursion(BinaryTreeNode_t *root)
+void BinarySearchTree_PreOrderNonRecursion(BinaryTree_t *tree, BinaryTreeNode_t *root)
 {
-	BinaryTreeNode_t *pointer = root;
-	LinkStack_BinaryTree temp;									//定义栈变量
-	CreateLinkStack_BinaryTree(&temp);							//创建栈
-	LSpush_BinaryTree(&temp,(BinaryTreeNode_t *)NULL);			//栈底监视哨
-
-	while(pointer || !isStackEmpty_BinaryTree(&temp))			//栈非空
-	{
-		visit(pointer);											//访问当前节点
-		if(pointer->right != NULL)								//非空右子节点入栈
-			LSpush_BinaryTree(&temp,pointer->right);
-		if(pointer->left != NULL)						
-			pointer = pointer->left;							//左路下降
-		else
-			pointer = LSpop_BinaryTree(&temp);					//栈顶元素退栈
-	}
+	BinaryTree_PreOrderNonRecursion(tree, root);
 }
 /************************************************************************/
 /* 中序周游二叉树,非递归方法                                            */
 /************************************************************************/
-void InOrderWithoutRecursion(BinaryTreeNode_t *root)
+void BinarySearchTree_InOrderNonRecursion(BinaryTree_t *tree, BinaryTreeNode_t *root)
 {
-	BinaryTreeNode_t *pointer = root;
-	LinkStack_BinaryTree temp;									//定义栈变量
-	CreateLinkStack_BinaryTree(&temp);							//创建栈
-//	LSpush_BinaryTree(&temp,(BinaryTreeNode_t *)NULL);			//栈底监视哨
-
-	while(pointer || !isStackEmpty_BinaryTree(&temp))			//栈非空
-	{
-		if(pointer)
-		{
-			LSpush_BinaryTree(&temp,pointer);
-			pointer = pointer->left;							//左路下降
-		}
-		else
-		{
-			pointer = LSpop_BinaryTree(&temp);					//栈顶元素退栈
-			visit(pointer);										//访问当前节点
-			pointer = pointer->right;							//指针指向右子节点
-		}
-	}
+	BinaryTree_InOrderNonRecursion(tree, root);
 }
 /************************************************************************/
 /* 后序周游二叉树,非递归方法                                            */
 /************************************************************************/
-void PostOrderWithoutRecursion(BinaryTreeNode_t *root)
+void BinarySearchTree_PostOrderNonRecursion(BinaryTree_t *tree, BinaryTreeNode_t *root)
 {
-	BinaryTreeNode_t *pointer = root;
-	LinkStack_BinaryTree temp;								//定义栈变量
-	CreateLinkStack_BinaryTree(&temp);						//创建栈
-//	LSpush_BinaryTree(&temp,(BinaryTreeNode_t *)NULL);		//栈底监视哨
-	
-	if(root == NULL)										//空树则返回
-		return;
-	else
-		pointer = root;
-	while(pointer || !isStackEmpty_BinaryTree(&temp))		//栈非空
-	{
-		while(pointer != NULL)								//如果当前指针非空，则压栈并下降到最左子节点
-		{					
-			pointer->val.tag = Left;						//标志位为Left,表示进入左子树
-			LSpush_BinaryTree(&temp,pointer);				
-			pointer = pointer->left;						//从左路下降
-		}
-		pointer = LSpop_BinaryTree(&temp);					//左路下降到底，弹出栈顶元素
-		if(pointer->val.tag == Left)						//如果从左子树返回
-		{
-			pointer->val.tag= Right;						//标志位为Right,表示进入右子树
-			LSpush_BinaryTree(&temp,pointer);				
-			pointer = pointer->right;
-		}
-		else												//如果从右子树返回
-		{
-			visit(pointer);									//访问当前节点
-			pointer = NULL;									//置pointer指针为空，以便继续弹出栈
-		}
-	}
-}
-
-////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////
-/********************************广度周游二叉树*************************************/
-typedef struct QueueNode
-{
-	BinaryTreeNode_t *node;
-	struct QueueNode *next;
-}QueueNode;
-typedef struct  Queue_BinaryTree
-{
-	int size;											//队列大小
-	QueueNode *queuenode;								//队列节点
-	QueueNode *front;									//队头
-	QueueNode *rear;									//队尾
-}Queue_BinaryTree;
-//创建队列
-static void CreateQueue_BinrayTree(Queue_BinaryTree *q)
-{
-	q->queuenode = NULL;
-	q->rear = NULL;
-	q->front = NULL;
-	q->size = 0;
-}
-
-//进队列
-static void enQueue_BinaryTree(Queue_BinaryTree *q,BinaryTreeNode_t *node)
-{
-	QueueNode *temp = (QueueNode *)malloc(sizeof(QueueNode));				//开辟空间
-	temp->node = node;														//赋值
-	temp->next = NULL;
-	if(q->front == NULL)													//队头为空，即队列为空
-	{
-		q->front = temp;
-		q->rear = temp;
-	}
-	else
-	{
-		q->rear->next = temp;												//队尾后放入新节点
-		q->rear = temp;														//队尾指向新节点
-	}
-	q->size ++;																//队列大小加1
-}
-
-//出队列
-static BinaryTreeNode_t * deQueue_BinaryTree(Queue_BinaryTree *q)
-{
-	QueueNode *temp=NULL;													//临时队列节点变量
-	BinaryTreeNode_t *node=NULL;
-	if(q->front == NULL || 0 == q->size )
-	{
-		printf("队列为空\r\n");
-		return NULL;
-	}
-	else
-	{
-		q->size --;															//队列大小减1
-		temp = q->front;													//读出数据
-		node = temp->node;
-		q->front = temp->next;												//对头指向下一个节点
-		free(temp);															//释放空间
-		temp = NULL;		
-		return node;														//返回队首地址
-	}
-}
-static bool isQueueEmpty_BinaryTree(Queue_BinaryTree *q)
-{
-	if(q->front == NULL || 0 == q->size )
-		return TRUE;
-	else
-		return FALSE;
+	BinaryTree_PostOrderNonRecursion(tree, root);
 }
 /************************************************************************/
 /* 广度周游二叉树                                                       */
 /************************************************************************/
-void LevelOrder(BinaryTreeNode_t *root)
+void BinarySearchTree_LevelOrder(BinaryTree_t *tree, BinaryTreeNode_t *root)
 {
-	BinaryTreeNode_t *pointer = root;
-	Queue_BinaryTree queue;
-	CreateQueue_BinrayTree(&queue);											//创建队列
-
-	if(pointer != NULL)
-	{
-		enQueue_BinaryTree(&queue,pointer);									//根节点入队列
-	}
-	while(!isQueueEmpty_BinaryTree(&queue))									//队列非空
-	{
-		pointer = deQueue_BinaryTree(&queue);								//获取队列队首节点地址
-		visit(pointer);														//访问当前节点
-		if(pointer->left != NULL)
-			enQueue_BinaryTree(&queue,pointer->left);						//左子树进队列
-		if(pointer->right != NULL)
-			enQueue_BinaryTree(&queue,pointer->right);						//右子树进队列
-	}
+	BinaryTree_LevelOrder(tree, root);
 }
-
-
 
 void testBinaryTree(void)
 {
 	unsigned char i=0;
-	BinaryTreeNode_t *root;//定义一个二叉树根节点
+	BinaryTree_t root;
+	int val[10] = {0,1,2,3,4,5,6,7,8,9};
+	int tempval;
 	BinaryTreeNode_t *temp;//临时节点
-	ValueType_t val[10] = {{0,Left},{10,Left},{20,Left},{30,Left},{40,Left},    {35,Left},{25,Left},{15,Left},{5,Left},{66,Left}};
-	ValueType_t testvalue = {3,Left};
-	root = CreateBinaryTree(NULL,NULL,NULL,val[2]);//创建二叉树
 
-	for(i = 0;i<10;i++)//插入10个节点，按照二叉搜索树的形式排列大小
+	if(!BinaryTree_Create(&root, sizeof(val[0]), &val[9]))//创建二叉树
 	{
-		temp = (BinaryTreeNode_t*)malloc(sizeof(BinaryTreeNode_t));
-		temp->left = NULL;
-		temp->right = NULL;
-		temp->val = val[i];
-		BinarySearchTree_InsertNode(root,temp);
+		printf("创建二叉树失败\r\n");
+		return;
+	}
+
+	for(i = 0;i<3;i++)//插入10个节点，按照二叉搜索树的形式排列大小
+	//for(i = 4;i>0;i--)//插入10个节点，按照二叉搜索树的形式排列大小
+	{
+		tempval = i+1;
+		BinarySearchTree_InsertNode(&root, &tempval);
 	}
 	printf("\r\n中序遍历：\r\n");
-	InOrder(root);
+	BinarySearchTree_InOrder(&root, root.root);
 	printf("\r\n");
-	InOrderWithoutRecursion(root);
+	BinaryTree_InOrderNonRecursion(&root, root.root);
 
 	printf("\r\n前序遍历：\r\n");
-	PreOrder(root);
+	BinarySearchTree_PreOrder(&root, root.root);
 	printf("\r\n");
-	PreOrderWithoutRecursion(root);
+	BinaryTree_PreOrderNonRecursion(&root, root.root);
 
 	printf("\r\n后序遍历：\r\n");
-	PostOrder(root);
+	BinarySearchTree_PostOrder(&root, root.root);
 	printf("\r\n");
-	PostOrderWithoutRecursion(root);
+	BinaryTree_PostOrderNonRecursion(&root, root.root);
 
 	printf("\r\n广度周游：\r\n");
-	LevelOrder(root);
+	BinaryTree_LevelOrder(&root, root.root);
 	printf("\r\n\r\n");
 
-	if(NULL != (temp = BinarySearchTree_SearchNode(root,testvalue)))
-		BinarySearchTree_DeleteNode(temp);//删除节点
+	if(NULL != (temp = BinarySearchTree_SearchNode(&root, &val[1])))
+		BinarySearchTree_DeleteNode(&root, temp);//删除节点
 	printf("中序遍历：\r\n");
-	InOrder(root);
+	BinarySearchTree_InOrder(&root, root.root);
 	printf("\r\n");
-	InOrderWithoutRecursion(root);
+	BinaryTree_InOrderNonRecursion(&root, root.root);
 }
