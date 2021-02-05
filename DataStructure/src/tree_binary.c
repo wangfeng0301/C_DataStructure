@@ -107,7 +107,7 @@ bool BinaryTree_Create(BinaryTree_t *tree, uint datlen, void *rootdat)
 /* cunrrentnode:当前节点
 /* tree:二叉树地址
 /************************************************************************/
-void visit(BinaryTree_t *tree, BinaryTreeNode_t *currentnode)
+static void visit(BinaryTree_t *tree, BinaryTreeNode_t *currentnode)
 {
 	long value = void2long(currentnode->dat, tree->datlen);
 	printf("%d ",value);
